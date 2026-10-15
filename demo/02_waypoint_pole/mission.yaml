@@ -1,0 +1,31 @@
+name: UAV2_WAYPOINT_POLE_DEMO_V1
+
+flight_height: 0.80
+
+fence:
+  forward_min: -1.50
+  forward_max:  1.50
+  left_min:    -0.50
+  left_max:     4.50
+  height_min:  -0.25
+  height_max:   1.30
+
+waypoints:
+  - name: P1
+    forward: 1.00
+    left:    1.00
+
+  - name: P2
+    forward: 0.50
+    left:    3.00
+
+  - name: P3
+    forward: -0.50
+    left:     4.00
+
+obstacle:
+  name: POLE
+  forward: 1.00
+  left:    2.00
+  radius:  0.04
+  height:  1.60

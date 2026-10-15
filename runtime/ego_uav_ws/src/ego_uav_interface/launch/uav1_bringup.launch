@@ -1,0 +1,27 @@
+<launch>
+
+  <!-- ================================================== -->
+  <!-- UAV1 LONG-RUNNING CORE                             -->
+  <!-- ================================================== -->
+
+  <!-- PX4 <-> ROS -->
+  <include file="$(find sunray_uav_control)/launch/sunray_mavros_exp.launch"/>
+
+  <!-- NOKOV / Mocap -> PX4 -->
+  <include file="$(find sunray_uav_control)/launch/vision_pose_node.launch"/>
+
+  <!-- State / EKF / preflight monitoring -->
+  <include file="$(find ego_uav_interface)/launch/monitor_stack.launch"/>
+
+  <!-- Unified setpoint interface:
+       HOLD by default, trajectory when explicitly enabled -->
+  <include file="$(find ego_uav_interface)/launch/trajectory_interface.launch"/>
+
+  <!-- PX4 mode manager -->
+  <include file="$(find ego_uav_interface)/launch/offboard_manager.launch"/>
+
+
+  <!-- Fixed D435 camera-to-body extrinsic -->
+  <include file="$(find ego_uav_interface)/launch/camera_extrinsic.launch"/>
+
+</launch>

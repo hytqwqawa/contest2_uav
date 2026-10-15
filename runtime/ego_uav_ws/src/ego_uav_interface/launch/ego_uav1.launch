@@ -1,0 +1,160 @@
+<launch>
+
+  <!-- ====================================================== -->
+  <!-- UAV1 EGO PLANNER - FIRST INTEGRATION                   -->
+  <!--                                                        -->
+  <!-- Localization : PX4 EKF2 / Mocap                        -->
+  <!-- Perception   : D435i depth                             -->
+  <!-- Control      : NOT connected in this launch            -->
+  <!-- ====================================================== -->
+
+  <arg name="drone_id" default="0"/>
+
+  <arg name="odom_topic"
+       default="/uav1/mavros/local_position/odom"/>
+
+  <arg name="depth_topic"
+       default="/camera/depth/image_rect_raw"/>
+
+  <arg name="map_size_x" default="100"/>
+  <arg name="map_size_y" default="50"/>
+  <arg name="map_size_z" default="3.0"/>
+
+  <!-- Conservative values for first real-platform integration -->
+  <arg name="max_vel" default="0.35"/>
+  <arg name="max_acc" default="1.0"/>
+
+  <arg name="planning_horizon" default="6.0"/>
+
+  <!-- No moving-object prediction yet -->
+  <arg name="obj_num" default="0"/>
+
+
+  <!-- ====================================================== -->
+  <!-- EGO planner                                            -->
+  <!-- ====================================================== -->
+
+  <include file="$(find ego_planner)/launch/advanced_param_exp.xml">
+
+    <arg name="drone_id"
+         value="$(arg drone_id)"/>
+
+    <arg name="map_size_x_"
+         value="$(arg map_size_x)"/>
+
+    <arg name="map_size_y_"
+         value="$(arg map_size_y)"/>
+
+    <arg name="map_size_z_"
+         value="$(arg map_size_z)"/>
+
+    <!-- PX4 EKF2 / Mocap odometry -->
+    <arg name="odometry_topic"
+         value="$(arg odom_topic)"/>
+
+    <arg name="obj_num_set"
+         value="$(arg obj_num)"/>
+
+
+    <!-- section -->
+    <!-- D435i depth input                                  -->
+    <!-- pose_type=2 inside advanced_param_exp.xml means:   -->
+    <!-- body odom + camera-to-body extrinsic               -->
+    <!-- section -->
+
+    <arg name="camera_pose_topic"
+         value="nouse1"/>
+
+    <arg name="depth_topic"
+         value="$(arg depth_topic)"/>
+
+    <arg name="cloud_topic"
+         value="nouse2"/>
+
+
+    <!-- section -->
+    <!-- ACTUAL D435i intrinsics measured from CameraInfo   -->
+    <!-- 640 x 480                                          -->
+    <!-- section -->
+
+    <arg name="cx"
+         value="319.07330322265625"/>
+
+    <arg name="cy"
+         value="240.47467041015625"/>
+
+    <arg name="fx"
+         value="383.05010986328125"/>
+
+    <arg name="fy"
+         value="383.05010986328125"/>
+
+
+    <!-- Conservative planning limits -->
+    <arg name="max_vel"
+         value="$(arg max_vel)"/>
+
+    <arg name="max_acc"
+         value="$(arg max_acc)"/>
+
+    <arg name="planning_horizon"
+         value="$(arg planning_horizon)"/>
+
+    <arg name="use_distinctive_trajs"
+         value="false"/>
+
+
+    <!-- flight_type = 1:
+         wait for RViz 2D Nav Goal -->
+    <arg name="flight_type"
+         value="1"/>
+
+
+    <!-- Waypoints unused for flight_type=1 -->
+    <arg name="point_num" value="1"/>
+
+    <arg name="point0_x" value="0.0"/>
+    <arg name="point0_y" value="0.0"/>
+    <arg name="point0_z" value="1.0"/>
+
+    <arg name="point1_x" value="0.0"/>
+    <arg name="point1_y" value="0.0"/>
+    <arg name="point1_z" value="1.0"/>
+
+    <arg name="point2_x" value="0.0"/>
+    <arg name="point2_y" value="0.0"/>
+    <arg name="point2_z" value="1.0"/>
+
+    <arg name="point3_x" value="0.0"/>
+    <arg name="point3_y" value="0.0"/>
+    <arg name="point3_z" value="1.0"/>
+
+    <arg name="point4_x" value="0.0"/>
+    <arg name="point4_y" value="0.0"/>
+    <arg name="point4_z" value="1.0"/>
+
+  </include>
+
+
+  <!-- ====================================================== -->
+  <!-- EGO trajectory server                                  -->
+  <!--                                                        -->
+  <!-- It may publish /position_cmd, but NOTHING in this      -->
+  <!-- launch forwards that command to PX4.                   -->
+  <!-- ====================================================== -->
+
+  <node pkg="ego_planner"
+        name="drone_$(arg drone_id)_traj_server"
+        type="traj_server"
+        output="screen">
+
+    <remap from="~planning/bspline"
+           to="/drone_$(arg drone_id)_planning/bspline"/>
+
+    <param name="traj_server/time_forward"
+           value="1.0"
+           type="double"/>
+
+  </node>
+
+</launch>

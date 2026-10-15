@@ -1,0 +1,117 @@
+Panels:
+- Class: rviz/Displays
+  Name: Displays
+- Class: rviz/Views
+  Name: Views
+Visualization Manager:
+  Class: ''
+  Global Options:
+    Background Color: 30; 30; 30
+    Fixed Frame: world
+    Frame Rate: 30
+  Displays:
+  - Class: rviz/Grid
+    Enabled: true
+    Name: Ground Grid
+    Cell Size: 0.25
+    Plane: XY
+    Plane Cell Count: 40
+    Reference Frame: world
+    Alpha: 0.35
+  - Class: rviz/PointCloud2
+    Enabled: true
+    Name: Occupancy
+    Topic: /contest2/drone_0_ego_planner_node/grid_map/occupancy
+    Queue Size: 10
+    Style: Points
+    Size (Pixels): 3
+    Alpha: 0.8
+    Color Transformer: FlatColor
+    Color: 220; 220; 220
+    Position Transformer: XYZ
+    Selectable: true
+    Decay Time: 0
+  - Class: rviz/PointCloud2
+    Enabled: true
+    Name: Occupancy Inflated
+    Topic: /contest2/drone_0_ego_planner_node/grid_map/occupancy_inflate
+    Queue Size: 10
+    Style: Points
+    Size (Pixels): 5
+    Alpha: 0.65
+    Color Transformer: FlatColor
+    Color: 255; 80; 80
+    Position Transformer: XYZ
+    Selectable: true
+    Decay Time: 0
+  - Class: rviz/Path
+    Enabled: true
+    Name: EGO Planned Path
+    Topic: /contest2/uav2_static/ego_path
+    Line Style: Lines
+    Line Width: 0.04
+    Color: 0; 255; 255
+    Alpha: 1
+    Buffer Length: 1
+  - Class: rviz/Marker
+    Enabled: true
+    Name: UAV Heading
+    Marker Topic: /contest2/uav2_static/body_heading
+    Queue Size: 10
+  - Class: rviz/Marker
+    Enabled: true
+    Name: Goal
+    Marker Topic: /contest2/uav2_static/goal_marker
+    Queue Size: 10
+  - Class: rviz/Marker
+    Enabled: true
+    Marker Topic: /contest2/uav2/replan_traj
+    Name: EGO Planned Trajectory
+    Namespaces:
+      {}
+    Queue Size: 100
+    Value: true
+  - Class: rviz/Marker
+    Enabled: true
+    Marker Topic: /contest2/uav2/executed_traj
+    Name: Realtime Executed Trajectory
+    Namespaces:
+      {}
+    Queue Size: 100
+    Value: true
+  - Class: rviz/Marker
+    Enabled: true
+    Marker Topic: /contest2/uav2/actual_traj
+    Name: Actual UAV Trajectory
+    Namespaces:
+      {}
+    Queue Size: 100
+    Value: true
+  - Class: rviz/MarkerArray
+    Enabled: true
+    Marker Topic: /contest2/yaw_tangent_demo/demo_frame_markers
+    Name: Demo Frame Fence
+    Namespaces: {}
+    Queue Size: 100
+    Value: true
+  - Class: rviz/MarkerArray
+    Enabled: true
+    Marker Topic: /contest2/yaw_tangent_demo/tangent_markers
+    Name: Tangent Yaw Arrows
+    Namespaces: {}
+    Queue Size: 100
+    Value: true
+  Tools:
+  - Class: rviz/Interact
+  - Class: rviz/MoveCamera
+  - Class: rviz/Select
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 4.0
+      Focal Point:
+        X: 1.0
+        Y: 0.0
+        Z: 0.6
+      Pitch: 0.55
+      Yaw: 3.14

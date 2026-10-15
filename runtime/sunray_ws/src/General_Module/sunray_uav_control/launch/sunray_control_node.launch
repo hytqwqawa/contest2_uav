@@ -1,0 +1,35 @@
+<launch>
+	<arg name="uav_id" default="1"/>
+	<arg name="uav_name" default="uav"/>
+    <arg name="flag_printf" default="true"/>
+    <arg name="sim_mode" default="false"/>
+    <arg name="use_rc" default="true"/>
+    <arg name="Takeoff_height" default="1.1"/>
+    <arg name="Land_speed" default="0.1"/>
+    <arg name="Disarm_height" default="0.2"/>
+    <arg name="geo_fence/x_min" default="-5.0"/>
+    <arg name="geo_fence/x_max" default="5.0"/>
+    <arg name="geo_fence/y_min" default="-6.0"/>
+    <arg name="geo_fence/y_max" default="6.0"/>
+    <arg name="geo_fence/z_min" default="-1.0"/>
+    <arg name="geo_fence/z_max" default="2.0"/>
+
+    <!-- 启动 sunray_control_node -->
+	<node pkg="sunray_uav_control" type="sunray_control_node" name="uav_control_node_$(arg uav_id)" output="screen">
+		<param name="uav_id" value="$(arg uav_id)" />
+		<param name="uav_name" value="$(arg uav_name)" />
+		<param name="flag_printf" value="$(arg flag_printf)" />
+		<param name="sim_mode" value="$(arg sim_mode)" />
+		<param name="use_rc" value="$(arg use_rc)" />
+		<param name="uav_control/Takeoff_height" value="$(arg Takeoff_height)" />
+		<param name="uav_control/Land_speed" value="$(arg Land_speed)" />
+		<param name="uav_control/Disarm_height" value="$(arg Disarm_height)" />
+		<param name="geo_fence/x_min" value="$(arg geo_fence/x_min)" />
+		<param name="geo_fence/x_max" value="$(arg geo_fence/x_max)" />
+		<param name="geo_fence/y_min" value="$(arg geo_fence/y_min)" />
+		<param name="geo_fence/y_max" value="$(arg geo_fence/y_max)" />
+		<param name="geo_fence/z_min" value="$(arg geo_fence/z_min)" />
+		<param name="geo_fence/z_max" value="$(arg geo_fence/z_max)" />
+	</node>
+</launch>
+

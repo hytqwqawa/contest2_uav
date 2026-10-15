@@ -1,0 +1,114 @@
+<launch>
+    <!-- ==================== 公共参数 ==================== -->
+    <arg name="uav_id" default="1"/>
+    <arg name="uav_name" default="contest"/>
+    <arg name="sim_mode" default="false"/>
+
+    <!-- 无人机总命名空间，例如 contest2 -->
+    <arg name="vehicle_ns"
+         default="$(arg uav_name)$(arg uav_id)"/>
+
+    <!-- RealSense 启动开关 -->
+    <arg name="start_d435i" default="true"/>
+    <arg name="start_t265" default="true"/>
+
+    <!-- 相机名称 -->
+    <arg name="d435i_camera_name" default="d435i"/>
+    <arg name="t265_camera_name" default="t265"/>
+    <arg name="t265_odom_topic" default="/$(arg vehicle_ns)/$(arg t265_camera_name)/odom/sample"/>
+    <arg name="t265_gyro_topic" default="/$(arg vehicle_ns)/$(arg t265_camera_name)/gyro/sample"/>
+    <arg name="t265_accel_topic" default="/$(arg vehicle_ns)/$(arg t265_camera_name)/accel/sample"/>
+
+    <group ns="$(arg vehicle_ns)"
+           if="$(arg start_d435i)">
+
+        <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+
+            <arg name="camera"
+                 value="$(arg d435i_camera_name)"/>
+
+            <!-- ROS 命名空间不会自动修改 TF frame_id，因此单独设置 -->
+            <arg name="tf_prefix"
+                 value="$(arg vehicle_ns)_$(arg d435i_camera_name)"/>
+
+            <arg name="enable_color" value="true"/>
+            <arg name="enable_depth" value="true"/>
+
+            <arg name="enable_infra1" value="false"/>
+            <arg name="enable_infra2" value="false"/>
+
+            <!-- 二维码任务不使用 D435i IMU -->
+            <arg name="enable_gyro" value="false"/>
+            <arg name="enable_accel" value="false"/>
+
+            <arg name="enable_pointcloud" value="false"/>
+
+            <!-- 生成 aligned_depth_to_color -->
+            <arg name="align_depth" value="true"/>
+
+            <arg name="color_width" value="640"/>
+            <arg name="color_height" value="480"/>
+            <arg name="color_fps" value="30"/>
+
+            <arg name="depth_width" value="640"/>
+            <arg name="depth_height" value="480"/>
+            <arg name="depth_fps" value="30"/>
+
+            <arg name="initial_reset" value="true"/>
+        </include>
+    </group>
+
+    <group ns="$(arg vehicle_ns)"
+           if="$(arg start_t265)">
+
+        <include file="$(find realsense2_camera)/launch/rs_t265.launch">
+
+            <!-- 将默认 camera 改成 t265 -->
+            <arg name="camera"
+                 value="$(arg t265_camera_name)"/>
+
+            <!-- 给 T265 的 TF frame 增加无人机标识 -->
+            <arg name="tf_prefix"
+                 value="$(arg vehicle_ns)_$(arg t265_camera_name)"/>
+        </include>
+    </group>
+
+    <include file="$(find sunray_uav_control)/launch/sunray_mavros_exp.launch">
+        <arg name="uav_id" value="$(arg uav_id)"/>
+        <arg name="uav_name" value="$(arg uav_name)"/>
+    </include>
+
+    <group>
+        <remap from="/camera/odom/sample"
+             to="$(arg t265_odom_topic)"/>
+
+        <remap from="/camera/gyro/sample"
+             to="$(arg t265_gyro_topic)"/>
+
+        <remap from="/camera/accel/sample"
+             to="$(arg t265_accel_topic)"/>
+
+        <include file="$(find sunray_uav_control)/launch/vision_pose_node.launch">
+            <arg name="uav_id" value="$(arg uav_id)"/>
+            <arg name="uav_name" value="$(arg uav_name)"/>
+            <arg name="t265_odom_topic" value="$(arg t265_odom_topic)"/>
+            <arg name="enable_rangeSensor" value="true"/>
+        </include>
+    </group>
+
+
+    <!-- ==================== 5. 启动 Offboard 主控节点 ==================== -->
+    <include file="$(find sunray_uav_control)/launch/sunray_control_node.launch">
+        <arg name="uav_id" value="$(arg uav_id)"/>
+        <arg name="uav_name" value="$(arg uav_name)"/>
+        <arg name="sim_mode" value="$(arg sim_mode)"/>
+    </include>
+
+
+    <!-- ==================== 6. 启动下视单目摄像头 ==================== -->
+    <include file="$(find web_cam)/launch/single_camera.launch">
+        <arg name="uav_id" value="$(arg uav_id)"/>
+        <arg name="uav_name" value="$(arg uav_name)"/>
+    </include>
+
+</launch>

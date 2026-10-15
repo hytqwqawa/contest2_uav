@@ -1,0 +1,42 @@
+# ROS / Catkin generated files
+**/build/
+**/devel/
+**/install/
+**/logs/
+**/.catkin_tools/
+
+# Python cache
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# ROS bags and flight logs
+*.bag
+*.bag.active
+*.db3
+*.mcap
+*.ulg
+*.log
+/data/bags/
+
+# Historical backups and temporary files
+**/backup*/
+**/*_backup*/
+*.bak
+*.orig
+*.rej
+*.backup_*
+*~
+*.swp
+
+# Editor settings
+.vscode/
+.idea/
+
+# Local secrets
+.env
+.env.*
+*.pem
+*.key
+id_rsa
+id_ed25519

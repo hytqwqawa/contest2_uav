@@ -1,0 +1,22 @@
+<launch>
+
+  <node pkg="ego_uav_interface"
+        type="camera_extrinsic_publisher.py"
+        name="camera_extrinsic_publisher"
+        output="screen">
+
+    <param name="topic"
+           value="/contest2/vins_fusion/extrinsic"/>
+
+    <!-- D435 optical center relative to UAV body -->
+    <!-- body frame: +x forward, +y left, +z up -->
+
+    <param name="x" value="0.01"/>
+    <param name="y" value="0.00"/>
+    <param name="z" value="0.04"/>
+
+    <param name="rate" value="10.0"/>
+
+  </node>
+
+</launch>

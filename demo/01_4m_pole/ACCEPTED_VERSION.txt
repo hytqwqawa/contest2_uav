@@ -1,0 +1,21 @@
+UAV2_FINAL_4M_POLE_DEMO
+REAL-FLIGHT ACCEPTED
+DATE=2026-10-03
+
+T1=~/contest2_uav/runtime/start_core.sh
+T2=~/contest2_uav/demo/01_4m_pole/start_backend.sh
+T3=~/contest2_uav/demo/01_4m_pole/run_mission.sh
+
+VALIDATED:
+  POINT takeoff
+  D435 obstacle sensing
+  EGO obstacle avoidance
+  first-gap < 0.08 m
+  tangent yaw
+  4 m target arrival
+  proven V4 automatic landing
+  stable XY during landing
+  no abnormal yaw rotation
+  normal PX4 disarm
+
+FLIGHT LOGIC FROZEN.

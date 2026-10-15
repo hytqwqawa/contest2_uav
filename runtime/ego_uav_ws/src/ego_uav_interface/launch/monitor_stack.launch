@@ -1,0 +1,45 @@
+<launch>
+
+  <!-- ============================================== -->
+  <!-- 1. Mocap / PX4 state consistency monitor      -->
+  <!-- ============================================== -->
+
+  <include file="$(find ego_uav_interface)/launch/state_monitor.launch"/>
+
+  <!-- ============================================== -->
+  <!-- 2. PX4 preflight / estimator monitor          -->
+  <!-- ============================================== -->
+
+  <node pkg="ego_uav_interface"
+        type="preflight_monitor_node"
+        name="preflight_monitor_node"
+        output="screen">
+
+    <param name="pose_ready_topic"
+           value="/ego_uav_interface/ready"/>
+
+    <param name="state_topic"
+           value="/uav1/mavros/state"/>
+
+    <param name="extended_state_topic"
+           value="/uav1/mavros/extended_state"/>
+
+    <param name="estimator_status_topic"
+           value="/uav1/mavros/estimator_status"/>
+
+    <!-- Topic-specific timeouts -->
+    <param name="pose_ready_timeout"
+           value="0.30"/>
+
+    <param name="state_timeout"
+           value="2.50"/>
+
+    <param name="extended_state_timeout"
+           value="0.80"/>
+
+    <param name="estimator_timeout"
+           value="2.50"/>
+
+  </node>
+
+</launch>
