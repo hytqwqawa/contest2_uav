@@ -3,3 +3,5 @@
 set -euo pipefail
 D="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 exec "$D/run_demo7.sh" "$@"
+
+# this is a test
