@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Offline acceptance of non-controlling flight-wide QR overlay."""
 import ast
 import sys
 from pathlib import Path
