@@ -5,7 +5,7 @@ D="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$HOME/contest2_uav"
 source "$ROOT/runtime/env.sh"
 export ROS_MASTER_URI=http://192.168.5.20:11311
-export ROS_IP=192.168.5.6
+export ROS_IP=192.168.5.7
 export ROS_NAMESPACE=/contest2
 if rosnode list 2>/dev/null | grep -Fxq /contest2/demo5_qr_monitor; then
     echo '[STOP] Existing Demo7 QR node detected; stop it first.'

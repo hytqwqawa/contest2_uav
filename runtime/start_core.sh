@@ -13,7 +13,7 @@ LOG_ROOT="$ROOT/data/logs/core"
 ROS_LOG_ROOT="$ROOT/data/logs/ros"
 
 export ROS_MASTER_URI=http://192.168.5.20:11311
-export ROS_IP=192.168.5.6
+export ROS_IP=192.168.5.7
 
 mkdir -p "$LOG_ROOT"
 mkdir -p "$ROS_LOG_ROOT"

@@ -18,7 +18,7 @@ The original `07_demo5_live_qr_v1_accepted.zip` is left untouched.
 * Demo5 first gap **<0.10m** at both gates; touchdown 0.08m unchanged.
 
 ## Required independent hardware validation
-* `ROS_IP=192.168.5.6`, MAVROS `uav_id=2`, D435i serial `939722070209` based on previously supplied contest2 snapshot. Confirm actual current devices locally.
+* `ROS_IP=192.168.5.7`, MAVROS `uav_id=2`, D435i serial `939722070209` based on previously supplied contest2 snapshot. Confirm actual current devices locally.
 * Demo frame is captured from the **nose direction at mission start**. P1 is a non-avoiding diagonal POINT segment. Each leg and fence must be checked physically for contest2's real flight field.
 * The accepted contest1 runtime snapshot differs from contest2's runtime OFFBOARD manager (post-arm wait and AUTO.LAND added on contest2). A private copy of the **accepted logic** is included as `offboard_manager_demo05.py`, launched only by this Demo5; current contest2 runtime remains untouched.
 * Other runtime nodes are reused from contest2; they matched the accepted snapshot after contest1/contest2 namespace adaptation in the archived engineering files, but current host installation must be verified.

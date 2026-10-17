@@ -3,7 +3,7 @@
 set -u
 
 export ROS_MASTER_URI=http://192.168.5.20:11311
-export ROS_IP=192.168.5.6
+export ROS_IP=192.168.5.7
 
 ROOT="$HOME/contest2_uav"
 DEMO="$ROOT/demo/04_5m_pole"
