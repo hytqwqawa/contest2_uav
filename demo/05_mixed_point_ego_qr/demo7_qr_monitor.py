@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
-"""Demo7 independent flight-wide QR observer. NO flight commands/services.
 
-RGB from D435i is decoded at <=5Hz; stable, fresh QR values are published and
-printed every 1s in ANSI yellow during PX4 ARMED+OFFBOARD. No flight actuation.
-"""
 import json
 import math
 import sys
