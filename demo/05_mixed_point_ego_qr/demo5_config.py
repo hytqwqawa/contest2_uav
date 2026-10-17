@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Pure Python validator/converter for Demo5 frame, fence, and ordered EGO goals.
 
-No ROS import: can be verified on DISARMED ground or off-aircraft.
-"""
 import argparse
 import math
 from pathlib import Path
