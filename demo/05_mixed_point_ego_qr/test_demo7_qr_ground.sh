@@ -3,8 +3,8 @@
 set -euo pipefail
 D="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOME/contest2_uav/runtime/env.sh"
-export ROS_MASTER_URI=http://192.168.5.20:11311
-export ROS_IP=192.168.5.7
+export ROS_MASTER_URI=http://192.168.8.101:11311
+export ROS_IP=192.168.8.102
 export ROS_NAMESPACE=/contest2
 STATE="$(timeout -s KILL 5s rostopic echo -n 1 /contest2/mavros/state 2>/dev/null || true)"
 printf '%s\n' "$STATE" | grep -Fxq 'armed: False' || { echo '[STOP] PX4 DISARM required'; exit 1; }

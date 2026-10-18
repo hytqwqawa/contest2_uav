@@ -9,8 +9,8 @@ source "$ROOT/runtime/env.sh"
 
 export ROS_NAMESPACE=/contest2
 
-export ROS_MASTER_URI=http://192.168.5.20:11311
-export ROS_IP=192.168.5.7
+export ROS_MASTER_URI=http://192.168.8.101:11311
+export ROS_IP=192.168.8.102
 
 BAG_DIR="$ROOT/data/bags/4m_pole"
 STAMP="$(date +%Y%m%d_%H%M%S)"
