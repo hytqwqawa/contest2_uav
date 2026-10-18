@@ -1,6 +1,6 @@
-# contest1_uav
+# contest2_uav
 
-Unified UAV workspace for contest1.
+Unified UAV workspace for contest2.
 
 ## Directory layout
 
@@ -26,7 +26,7 @@ data/
 
 Terminal 1:
 
-    ~/contest1_uav/runtime/start_core.sh
+    ~/contest2_uav/runtime/start_core.sh
 
 Runtime stack:
 
