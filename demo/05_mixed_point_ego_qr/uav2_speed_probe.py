@@ -222,7 +222,7 @@ class SpeedProbe:
             self.f.close()
 
             lines = [
-                "========= SPEED PROBE SUMMARY =========",
+                "========+++= SPEED PROBE SUMMARY ======+++===",
                 "EGO-only data",
                 "",
                 "max_position_cmd_3d = %.3f m/s"
