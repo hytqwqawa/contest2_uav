@@ -1,0 +1,15 @@
+<launch>
+
+    <include file="$(find ego_uav_interface)/launch/uav1_bringup.launch" />
+
+    <node pkg="ego_uav_interface" type="rc_supervisor.py" name="rc_supervisor" output="log" />
+
+    <node pkg="ego_uav_interface" type="point_traj_node.py" name="point_traj_node" output="log">
+
+        <param name="output_topic" value="/ego_uav_interface/point_setpoint" />
+
+    <param name="takeoff_height" value="0.80" /></node>
+
+    <node pkg="ego_uav_interface" type="trajectory_mux.py" name="trajectory_mux" output="log" />
+
+</launch>

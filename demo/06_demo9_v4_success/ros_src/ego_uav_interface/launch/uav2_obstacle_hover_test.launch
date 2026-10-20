@@ -1,0 +1,99 @@
+<launch>
+
+  
+  
+  
+
+  <node pkg="ego_uav_interface" type="point_traj_node.py" name="point_traj_node" output="log">
+
+    <param name="output_topic" value="/contest2/ego_uav_interface/point_setpoint" />
+
+    
+    <param name="takeoff_height" value="0.80" />
+
+    <param name="takeoff_speed" value="0.20" />
+
+    <param name="takeoff_acc" value="0.40" />
+
+    <param name="land_speed" value="0.30" />
+
+    <param name="land_acc" value="0.60" />
+
+    
+    <param name="land_target_offset" value="-0.10" />
+
+    
+    <!-- FINAL_DROP_10CM_V1: range <= 0.10 m, vz = -0.30 m/s -->
+<param name="land_terminal_range" value="0.10" />
+
+    <param name="land_terminal_speed" value="0.30" />
+    
+
+
+    <param name="land_terminal_fault_grace" value="0.60" />
+
+    <param name="land_terminal_min_offset" value="-0.20" />
+
+    <param name="range_timeout" value="0.30" />
+
+  <remap from="/contest2/move_base_simple/goal" to="/contest2/ego_uav_interface/point_goal" /></node>
+
+
+  
+  
+  
+
+  <node pkg="ego_uav_interface" type="trajectory_mux.py" name="trajectory_mux" output="log" />
+
+
+  
+  
+  
+
+  <param name="/contest2/uav2_touchdown/range_threshold" value="0.08" />
+
+  <param name="/contest2/uav2_touchdown/range_timeout" value="0.30" />
+
+  <param name="/contest2/uav2_touchdown/stable_time" value="0.20" />
+
+  <param name="/contest2/uav2_touchdown/min_drop" value="0.30" />
+
+
+  
+  <param name="/contest2/uav2_touchdown/autoland_handoff_range" value="0.10" />
+
+  <param name="/contest2/uav2_touchdown/autoland_timeout" value="6.0" />
+
+
+  
+  
+  
+
+  <node pkg="ego_uav_interface" type="uav2_obstacle_hover_test.py" name="uav2_obstacle_hover_test" output="screen" required="false">
+
+    <param name="min_climb" value="0.60" />
+
+    <param name="vz_limit" value="0.10" />
+
+    <param name="settle_time" value="0.60" />
+
+    <param name="settle_timeout" value="8.0" />
+
+  <param name="takeoff_height" value="0.80" /><param name="altitude_tolerance" value="0.04" /><param name="inspection_time" value="120.0" /></node>
+
+<node pkg="ego_uav_interface"
+      type="ego_trajectory_bridge.py"
+      name="ego_trajectory_bridge"
+      output="screen">
+
+    <!-- DIRECT_TANGENT_FAST_YAW_V1 -->
+    <!-- 0.80 rad/s = 45.8 deg/s command slew -->
+    <param name="yaw_rate_limit" value="0.80" />
+
+    <!-- allow command to lead actual yaw by at most 17.2 deg -->
+    <param name="max_yaw_lead" value="0.30" />
+
+    <!-- retain the proven low-speed tangent rejection -->
+    <param name="min_tangent_speed" value="0.06" />
+
+</node><node pkg="ego_uav_interface" type="rviz_goal_executor.py" name="rviz_goal_executor" output="screen" /></launch>

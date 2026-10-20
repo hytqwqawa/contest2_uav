@@ -1,0 +1,53 @@
+<launch>
+
+  <node pkg="demo8_interface_overlay"
+        type="trajectory_interface_demo8.py"
+        name="trajectory_interface"
+        output="screen">
+
+    <param name="odom_topic"
+           value="/contest2/mavros/local_position/odom"/>
+
+    <param name="health_topic"
+           value="/contest2/ego_uav_interface/flight_healthy"/>
+
+    <param name="command_topic"
+           value="/contest2/ego_uav_interface/trajectory_setpoint"/>
+
+    <param name="output_topic"
+           value="/contest2/mavros/setpoint_raw/local"/>
+
+    <param name="publish_rate"
+           value="50.0"/>
+
+    <param name="odom_timeout"
+           value="0.20"/>
+
+    <param name="health_timeout"
+           value="0.30"/>
+
+    <param name="command_timeout"
+           value="0.20"/>
+
+    <param name="stream_ready_time"
+           value="1.50"/>
+
+    <!-- T265_DEMO_WORLD_ENVELOPE_V1
+         The old absolute mocap fence is invalid for the
+         session-dependent T265 world frame.
+
+         Demo-frame guard remains the authoritative physical
+         experiment fence.
+
+         This world-frame fence is retained only as a broad
+         emergency envelope before MAVROS.
+    -->
+    <param name="fence_x_min" value="-6.0"/>
+    <param name="fence_x_max" value=" 6.0"/>
+    <param name="fence_y_min" value="-6.0"/>
+    <param name="fence_y_max" value=" 6.0"/>
+    <param name="fence_margin" value="0.25"/>
+
+  </node>
+
+</launch>

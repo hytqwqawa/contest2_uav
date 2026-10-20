@@ -1,0 +1,6 @@
+{
+  "version": "DEMO9_EGO_START_GAP_REPLAN_V1",
+  "backup": "/home/yundrone/uav_handoff_exports/demo9_ego_gap_recovery_20261017_222507_146980/uav2_demo5_waypoints.py.bak",
+  "original_sha256": "77629f236ef381d409228abddd6657e0f817705e8bf673b2c682c7e6acc9673f",
+  "patched_sha256": "5909777db45dccbfec13086e5e23f4220e5d2cb068be21d8371ccb5858f0e0d4"
+}

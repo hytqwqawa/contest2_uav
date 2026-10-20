@@ -1,0 +1,27 @@
+# Demo5 V2 mixed EGO/POINT waypoint modes.
+# Every waypoint MUST specify mode: EGO or POINT (uppercase).
+# EGO: obstacle-avoiding B-spline; tangent yaw while moving.
+# yaw_deg: optional EGO terminal heading in Demo frame (F=0, left=+90deg).
+# With yaw_deg: settle at point, rotate in place, verify yaw/position, then HOLD.
+# Leave yaw_deg absent to keep Demo7's tangent-only behavior.
+# Demo8 sample yaw applies to P2 only; P3 final landing remains unchanged.
+# POINT: straight quintic segment, heading held, NO obstacle avoidance.
+# Only the LAST waypoint triggers landing, regardless of mode.
+# Aircraft nose at ground initialization = NEW forward (old Demo4 left).
+
+fence:
+  forward_min: -1.0
+  forward_max: 6.0
+  left_min: -3.0
+  left_max: 1.0
+  height_min: -0.25
+  height_max: 1.3
+flight_height: 0.8
+segment_timeout_s: 90.0
+waypoint_margin: 0.2
+
+waypoints:
+  - {forward: 1.000, left: 0.000, mode: POINT}  # P1
+  - {forward: 2.000, left: 0.000, mode: EGO, yaw_deg: -45.0}  # P2 terminal yaw, Demo F=0
+  - {forward: 3.000, left: -1.000, mode: EGO, yaw_deg: -90.0}  # P2 terminal yaw, Demo F=0
+

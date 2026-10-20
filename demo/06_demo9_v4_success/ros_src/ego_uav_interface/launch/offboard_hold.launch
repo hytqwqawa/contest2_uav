@@ -1,0 +1,31 @@
+<launch>
+
+  <node pkg="ego_uav_interface"
+        type="offboard_hold_node.py"
+        name="offboard_hold_node"
+        output="screen">
+
+    <param name="odom_topic"
+           value="/uav1/mavros/local_position/odom"/>
+
+    <param name="health_topic"
+           value="/ego_uav_interface/flight_healthy"/>
+
+    <param name="setpoint_topic"
+           value="/uav1/mavros/setpoint_raw/local"/>
+
+    <param name="odom_timeout"
+           value="0.20"/>
+
+    <param name="health_timeout"
+           value="0.30"/>
+
+    <param name="publish_rate"
+           value="30.0"/>
+
+    <param name="stream_ready_time"
+           value="1.50"/>
+
+  </node>
+
+</launch>

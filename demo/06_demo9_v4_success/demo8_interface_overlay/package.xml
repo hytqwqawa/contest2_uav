@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>demo8_interface_overlay</name>
+  <version>0.0.1</version>
+  <description>Demo8 local controller mirror to isolate noncritical status logging</description>
+  <maintainer email="noreply@example.invalid">Demo8 Local</maintainer>
+  <license>Proprietary</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>mavros_msgs</exec_depend>
+  <exec_depend>tf</exec_depend>
+</package>

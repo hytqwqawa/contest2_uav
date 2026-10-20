@@ -1,0 +1,37 @@
+<launch>
+
+  <node pkg="ego_uav_interface"
+        type="offboard_manager.py"
+        name="offboard_manager"
+        output="screen">
+
+    <param name="state_topic"
+           value="/contest2/mavros/state"/>
+
+    <param name="health_topic"
+           value="/contest2/ego_uav_interface/flight_healthy"/>
+
+    <param name="stream_ready_topic"
+           value="/contest2/ego_uav_interface/offboard_stream_ready"/>
+
+    <param name="set_mode_service"
+           value="/contest2/mavros/set_mode"/>
+
+    <param name="state_timeout"
+           value="2.5"/>
+
+    <param name="health_timeout"
+           value="0.3"/>
+
+    <param name="stream_timeout"
+           value="0.3"/>
+
+    <param name="offboard_mode"
+           value="OFFBOARD"/>
+
+    <param name="fallback_mode"
+           value="POSCTL"/>
+
+  </node>
+
+</launch>

@@ -1,0 +1,21 @@
+<launch>
+
+  <!--
+    EGO currently labels its map as "world",
+    while MAVROS odometry uses "map".
+    Numerically they are the same frame in our current setup.
+    Temporary identity transform for visualization only.
+  -->
+
+  <node pkg="tf2_ros"
+        type="static_transform_publisher"
+        name="world_to_map_identity"
+        args="0 0 0 0 0 0 world map"/>
+
+  <node pkg="rviz"
+        type="rviz"
+        name="ego_rviz"
+        args="-f world"
+        output="screen"/>
+
+</launch>
