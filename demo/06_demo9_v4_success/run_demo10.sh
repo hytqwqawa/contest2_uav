@@ -4,7 +4,7 @@ set -eo pipefail
 D="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$HOME/contest2_uav"
 source "$ROOT/runtime/env.sh"
-export DEMO10_QR_AFTER_WAYPOINT=1  # P2 到达并恢复悬停后开启；收到 P2->P3 EGO 曲线立即关闭
+export DEMO10_QR_AFTER_WAYPOINT=1
 export ROS_MASTER_URI=http://192.168.8.101:11311
 export ROS_IP=192.168.8.102
 export ROS_NAMESPACE=/contest2
@@ -54,7 +54,7 @@ if [ "${SHOW_RVIZ:-1}" = '1' ] && command -v rviz >/dev/null 2>&1; then
   rviz -d "$D/yaw_tangent_demo.rviz" /tf:=/contest2/tf /tf_static:=/contest2/tf_static \
     >"$LOGDIR/rviz.log" 2>&1 & PIDS+=("$!")
 fi
-# Log critical behavior without making rosbag readiness a flight permission.
+
 if command -v rosbag >/dev/null 2>&1; then
   mkdir -p "$ROOT/data/bags/demo10_compact"
   rosbag record -O "$ROOT/data/bags/demo10_compact/mission_$(date +%Y%m%d_%H%M%S).bag" \
