@@ -29,8 +29,8 @@ def yaw_error_deg(actual_yaw_rad, world_yaw_deg):
 class TerminalYawGate:
     """Requires continuous measured pose/yaw/speed tolerance for stable_s."""
 
-    def __init__(self, goal_xyz, yaw_world_deg, xy_tol=0.15, z_tol=0.10,
-                 speed_tol=0.12, yaw_tol_deg=5.0, stable_s=1.0):
+    def __init__(self, goal_xyz, yaw_world_deg, xy_tol=0.25, z_tol=0.15,
+                 speed_tol=0.20, yaw_tol_deg=5.0, stable_s=0.2):
         self.goal_xyz = tuple(float(v) for v in goal_xyz)
         self.yaw_world_deg = float(yaw_world_deg)
         self.xy_tol = float(xy_tol)

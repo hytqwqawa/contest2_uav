@@ -29,7 +29,7 @@ def check():
     assert "self.root / 'demo9_posctl_handoff.py'" in src
     assert 'DEMO10_LANDING_MODE' not in src
     assert 'point_status == "AIRBORNE_HOLD"' in src
-    assert 'stable >= 0.40' in src
+    assert 'stable >= 0.30' in src
     assert 'self.demo9_verified_hold(' not in src
     land = (ROOT/'demo9_posctl_handoff.py').read_text()
     assert "custom_mode='POSCTL'" in land

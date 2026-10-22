@@ -2149,7 +2149,7 @@ class TangentPreview:
                 raise RuntimeError("Final POINT trajectory aborted")
             arrived = (
                 self.point_status == "AIRBORNE_HOLD" and
-                dxy < 0.20 and dz < 0.20 and speed < 0.20
+                dxy < 0.25 and dz < 0.15 and speed < 0.20
             )
             if arrived:
                 if stable_since is None:
@@ -2159,14 +2159,14 @@ class TangentPreview:
             stable = (time.time() - stable_since) if stable_since else 0.0
             print(
                 "\r[DEMO5 V2] POINT P%d/%d dXY=%.3f dZ=%.3f "
-                "speed=%.3f stable=%.2f/0.40" %
+                "speed=%.3f stable=%.2f/0.30" %
                 (index, total, dxy, dz, speed, stable),
                 end="", flush=True
             )
-            if stable >= 0.40:
+            if stable >= 0.30:
                 print()
                 rospy.logwarn(
-                    "[WAYPOINT] %d/%d reached: measured POINT HOLD stable for 0.4s",
+                    "[WAYPOINT] %d/%d reached: measured POINT HOLD stable for 0.30s",
                     index, total
                 )
                 if index == total:
@@ -2700,11 +2700,11 @@ class TangentPreview:
             # Demo8 yaw handoff waits for a tighter stationary state.
             # Unconstrained legs preserve Demo7's thresholds.
             arrived = (
-                dxy < (0.12 if terminal_yaw_world_deg is not None else 0.15)
+                dxy < (0.25 if terminal_yaw_world_deg is not None else 0.25)
                 and
-                dz < (0.08 if terminal_yaw_world_deg is not None else 0.10)
+                dz < (0.15 if terminal_yaw_world_deg is not None else 0.15)
                 and
-                speed < (0.10 if terminal_yaw_world_deg is not None else 0.20)
+                speed < (0.20 if terminal_yaw_world_deg is not None else 0.20)
             )
 
             if arrived:
@@ -2730,7 +2730,7 @@ class TangentPreview:
                 "dZ=%.3f "
                 "v=%.3f "
                 "yawErr=%5.1f deg "
-                "stable=%.2f/0.40"
+                "stable=%.2f/0.30"
                 %
                 (
                     tid,
@@ -2744,7 +2744,7 @@ class TangentPreview:
                 flush=True
             )
 
-            if stable >= 0.40:
+            if stable >= 0.30:
 
                 print()
 

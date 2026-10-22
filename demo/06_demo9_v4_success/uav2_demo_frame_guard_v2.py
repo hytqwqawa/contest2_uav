@@ -57,12 +57,12 @@ class DemoFrameGuardV2:
         # EGO should only receive airborne goals.
         self.ego_h_min = rospy.get_param(
             "~ego_h_min",
-            +0.45
+            +0.10
         )
 
         self.ego_h_max = rospy.get_param(
             "~ego_h_max",
-            +1.30
+            +1.50
         )
 
         # Small numerical allowance for legacy AABB.

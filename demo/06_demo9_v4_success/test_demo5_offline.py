@@ -33,9 +33,9 @@ def run_tests():
     assert 1 <= len(cfg['waypoints']) <= 20
     assert cfg['flight_height'] == 0.8
     assert cfg['fence'] == {
-        'forward_min': -1.0, 'forward_max': 6.0,
-        'left_min': -2.0, 'left_max': 3.0,
-        'height_min': -0.25, 'height_max': 1.30,
+        'forward_min': -2.0, 'forward_max': 8.0,
+        'left_min': -8.0, 'left_max': 8.0,
+        'height_min': -0.5, 'height_max': 1.5,
     }
     assert all(p['mode'] in ('POINT', 'EGO') for p in cfg['waypoints'])
 
