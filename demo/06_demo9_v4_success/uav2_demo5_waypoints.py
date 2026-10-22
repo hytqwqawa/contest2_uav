@@ -2277,8 +2277,8 @@ class TangentPreview:
                 sp.type_mask == PositionTarget.IGNORE_YAW_RATE and
                 max(abs(v.x), abs(v.y), abs(v.z),
                     abs(a.x), abs(a.y), abs(a.z)) <= 0.02 and
-                math.hypot(position.x - gx, position.y - gy) < 0.15 and
-                abs(position.z - gz) < 0.10 and
+                math.hypot(position.x - gx, position.y - gy) < 0.25 and
+                abs(position.z - gz) < 0.15 and
                 abs(math.atan2(
                     math.sin(cmd_yaw - math.radians(world_yaw_deg)),
                     math.cos(cmd_yaw - math.radians(world_yaw_deg))
