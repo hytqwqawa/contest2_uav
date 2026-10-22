@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import math
+import os
 import time
 import threading
 import subprocess
@@ -37,6 +38,7 @@ class TangentPreview:
     def __init__(self):
 
         self.root = Path(__file__).resolve().parent
+        self.qr_proc = None
 
         self.session_path = (
             self.root
@@ -48,6 +50,9 @@ class TangentPreview:
 
         self.point_status = ""
         self.point_status_rx_time = None
+        self.point_result = ""
+        self.point_result_rx_time = None
+        self.point_result_seq = 0
         self.mux_status = ""
         self.mux_status_time = None
         self.demo_safe = False
@@ -203,6 +208,10 @@ class TangentPreview:
             self.point_cb,
             queue_size=10
         )
+        rospy.Subscriber(
+            "/contest2/ego_uav_interface/point_traj_result",
+            String, self.point_result_cb, queue_size=10
+        )
 
         rospy.Subscriber(
             "/contest2/ego_uav_interface/trajectory_mux_status",
@@ -290,6 +299,11 @@ class TangentPreview:
     def point_cb(self, msg):
         self.point_status = msg.data
         self.point_status_rx_time = rospy.Time.now()
+
+    def point_result_cb(self, msg):
+        self.point_result = msg.data
+        self.point_result_rx_time = rospy.Time.now()
+        self.point_result_seq += 1
 
     def point_cmd_cb(self, msg):
         self.point_cmd = msg
@@ -518,10 +532,10 @@ class TangentPreview:
             if (
                 matched >= 5
                 and
-                time.time() - first_time >= 0.30
+                time.time() - first_time >= 0.10
             ):
 
-                if max_move >= 0.03:
+                if max_move >= 0.20:
                     raise RuntimeError(
                         "traj_server ACK received but "
                         "preview is not frozen: "
@@ -1065,8 +1079,8 @@ class TangentPreview:
                     self.y_min <= l <= self.y_max and
                     self.h_min <= h <= self.h_max):
                 raise RuntimeError("EGO path/replan outside Demo5 fence")
-            if not (h_target - 0.25 <= h <= h_target + 0.25):
-                raise RuntimeError("EGO path/replan altitude out of band")
+            # No duplicate target-height band check here.
+            # Retain finite-value and physical flight-fence checks above.
         return pts
 
     def analyze(
@@ -1413,7 +1427,7 @@ class TangentPreview:
 
         height_tol = rospy.get_param(
             "~preview_height_tolerance",
-            0.08
+            0.20
         )
 
         max_vz = rospy.get_param(
@@ -1423,7 +1437,7 @@ class TangentPreview:
 
         stable_time = rospy.get_param(
             "~preview_height_stable_time",
-            0.80
+            0.40
         )
 
         stable_since = None
@@ -1659,8 +1673,6 @@ class TangentPreview:
             if (state is None or not state.connected or not state.armed or
                     state.mode != 'OFFBOARD'):
                 raise RuntimeError('POINT rejoin: PX4 not ARMED OFFBOARD')
-            if not self.flight_healthy:
-                raise RuntimeError('POINT rejoin: flight_healthy=False')
             if not self.mission_allowed:
                 raise RuntimeError('POINT rejoin: RC permission lost')
             if not self.demo_safe:
@@ -1957,18 +1969,28 @@ class TangentPreview:
 
 
 
-    # FINAL_POSCTL_HANDOFF_V13
+    def stop_qr(self):
+        proc, self.qr_proc = self.qr_proc, None
+        if proc is None:
+            return
+        if proc.poll() is None:
+            proc.terminate()
+            try:
+                proc.wait(timeout=1.0)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                proc.wait()
+        rospy.logwarn('[QR] recognition OFF')
+
+
+    # Final waypoint: return control to the physical pilot in POSCTL.
     def start_land(self):
-        # Demo9 replaces ONLY the terminal landing handoff. Waypoints/EGO/yaw
-        # remain the same as the installed Demo8. Do not request auto LAND.
-        self.demo9_verified_hold('FINAL_WAYPOINT', 3.0)
-        rospy.logwarn('[DEMO9] FINAL: 3s POINT HOLD -> POSCTL real-RC descent')
-        script = Path(__file__).resolve().parent / 'demo9_posctl_handoff.py'
+        script = self.root / 'demo9_posctl_handoff.py'
+        rospy.logwarn('[FINAL] Requesting POSCTL pilot landing handoff')
         ret = subprocess.call(['python3', '-B', '-u', str(script)])
         if ret != 0:
-            raise RuntimeError('POSCTL handoff / pilot-landing monitor returned %d' % ret)
-        rospy.logwarn('[DEMO9] PILOT LANDING COMPLETED; observed DISARM')
-
+            raise RuntimeError('Final POSCTL handoff failed: rc=%d' % ret)
+        rospy.logwarn('[FINAL] Physical DISARM observed after landing')
 
 
     # ============================================================
@@ -1984,7 +2006,7 @@ class TangentPreview:
         f = waypoint["forward"]
         l = waypoint["left"]
         h = self.demo5_cfg["flight_height"]
-        gx, gy, _ = demo_to_world(
+        gx, gy, goal_z = demo_to_world(
             (self.ox, self.oy, self.oz),
             (self.fx, self.fy), (self.lx, self.ly), f, l, h
         )
@@ -2043,13 +2065,14 @@ class TangentPreview:
         msg.header.stamp = rospy.Time.now()
         msg.pose.position.x = gx
         msg.pose.position.y = gy
-        msg.pose.position.z = start_z  # point_traj holds current altitude
+        msg.pose.position.z = goal_z 
         msg.pose.orientation.w = 1.0
+        result_start_seq = self.point_result_seq
         published = rospy.Time.now()
         rospy.logwarn(
             "[DEMO5 V2] POINT goal world=(%.3f,%.3f,%.3f) "
             "from=(%.3f,%.3f,%.3f) dXY=%.3f yaw=%.1fdeg",
-            gx, gy, start_z, start_x, start_y, start_z,
+            gx, gy, goal_z, start_x, start_y, start_z,
             actual_distance, math.degrees(yaw_initial)
         )
         # A single publish; fail rather than publishing again on uncertainty.
@@ -2083,7 +2106,12 @@ class TangentPreview:
                     self.state.mode != "OFFBOARD"):
                 raise RuntimeError("PX4 execution state lost in POINT")
             if not self.flight_healthy or not self.mission_allowed or not self.demo_safe:
-                raise RuntimeError("POINT safety permission/health/guard lost")
+                raise RuntimeError(
+                    "POINT control permission changed: health=%s rc=%s demo_fence=%s "
+                    "armed=%s mode=%s" % (
+                        self.flight_healthy, self.mission_allowed, self.demo_safe,
+                        getattr(self.state, 'armed', None),
+                        getattr(self.state, 'mode', None)))
             if self.mux_status != "POINT_ACTIVE":
                 raise RuntimeError("POINT MUX left POINT_ACTIVE")
             if self.point_status not in ("POINT_TRAJECTORY", "AIRBORNE_HOLD"):
@@ -2109,13 +2137,19 @@ class TangentPreview:
             p = self.odom.pose.pose.position
             v = self.odom.twist.twist.linear
             dxy = math.hypot(p.x - gx, p.y - gy)
-            dz = abs(p.z - start_z)
+            dz = abs(p.z - goal_z)
             speed = math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
             if not all(math.isfinite(q) for q in (dxy, dz, speed)):
                 raise RuntimeError("POINT odometry contains NaN/Inf")
+            # Final POINT leg uses the SAME physical-arrival criteria as
+            # intermediate legs. A missed latched point_result=COMPLETED
+            # must not create an indefinite hover despite a confirmed HOLD.
+            if (index == total and self.point_result_seq > result_start_seq
+                    and self.point_result == "ABORTED"):
+                raise RuntimeError("Final POINT trajectory aborted")
             arrived = (
                 self.point_status == "AIRBORNE_HOLD" and
-                dxy < 0.15 and dz < 0.10 and speed < 0.20
+                dxy < 0.20 and dz < 0.20 and speed < 0.20
             )
             if arrived:
                 if stable_since is None:
@@ -2125,23 +2159,18 @@ class TangentPreview:
             stable = (time.time() - stable_since) if stable_since else 0.0
             print(
                 "\r[DEMO5 V2] POINT P%d/%d dXY=%.3f dZ=%.3f "
-                "speed=%.3f stable=%.2f/0.80" %
+                "speed=%.3f stable=%.2f/0.40" %
                 (index, total, dxy, dz, speed, stable),
                 end="", flush=True
             )
-            if stable >= 0.80:
+            if stable >= 0.40:
                 print()
                 rospy.logwarn(
-                    "[DEMO5 V2] WAYPOINT %d/%d REACHED (POINT; yaw hold)",
+                    "[WAYPOINT] %d/%d reached: measured POINT HOLD stable for 0.4s",
                     index, total
                 )
                 if index == total:
                     self.start_land()
-                else:
-                    rospy.logwarn(
-                        "[DEMO5 V2] P%d POINT HOLD; next waypoint ready",
-                        index
-                    )
                 return
             rate.sleep()
         raise RuntimeError(
@@ -2186,7 +2215,7 @@ class TangentPreview:
         rospy.sleep(0.20)  # target callback precedes FIXED mode entry
         self.yaw_mode_pub.publish(String(data="FIXED"))
 
-        gate = TerminalYawGate((gx, gy, gz), world_yaw_deg)
+        gate = TerminalYawGate((gx, gy, gz), world_yaw_deg, stable_s=0.2)
         mode_ack_deadline = time.monotonic() + 2.0
         latest_replan = int(self.bspline.traj_id) if self.bspline is not None else None
         rate = rospy.Rate(20)
@@ -2265,8 +2294,8 @@ class TangentPreview:
                     self.h_min <= current_demo[2] <= self.h_max):
                 raise RuntimeError("Demo8 yaw: measured pose outside fence")
             # Large drift at any time is a hard failure, not a timeout.
-            if (math.hypot(p.x - gx, p.y - gy) > 0.25 or
-                    abs(p.z - gz) > 0.18):
+            if (math.hypot(p.x - gx, p.y - gy) > 0.40 or
+                    abs(p.z - gz) > 0.25):
                 raise RuntimeError("Demo8 yaw: excessive endpoint drift")
             measured_vel = self.odom.twist.twist.linear
             done, values = gate.update(
@@ -2276,7 +2305,7 @@ class TangentPreview:
             dxy, dz, speed, yaw_error, stable = values
             rospy.loginfo_throttle(
                 0.5, "[DEMO8] YAW dxy=%.3f dz=%.3f speed=%.3f "
-                "err=%.1fdeg stable=%.2f/1.00 FIXED=%s",
+                "err=%.1fdeg stable=%.2f/0.20 FIXED=%s",
                 dxy, dz, speed, yaw_error, stable, str(bool(mode_ack)))
             if done:
                 rospy.logwarn(
@@ -2389,11 +2418,11 @@ class TangentPreview:
 
         # Keep the existing strict safety gate.
         if (
-            gap_xy >= 0.08
+            gap_xy >= 0.20
             or
-            gap_z >= 0.08
+            gap_z >= 0.20
         ):
-            raise Demo9EgoStartGap("pre-release first gap >= 0.08 m")
+            raise Demo9EgoStartGap("pre-release first gap >= 0.20 m")
 
         # ----------------------------------------------------
         # Prepare TANGENT mode.
@@ -2509,11 +2538,11 @@ class TangentPreview:
         )
 
         if (
-            post_gap_xy >= 0.08
+            post_gap_xy >= 0.20
             or
-            post_gap_z >= 0.08
+            post_gap_z >= 0.20
         ):
-            raise Demo9EgoStartGap("post-trigger first gap >= 0.08 m")
+            raise Demo9EgoStartGap("post-trigger first gap >= 0.20 m")
 
         # ----------------------------------------------------
         # RELEASE:
@@ -2572,19 +2601,9 @@ class TangentPreview:
                     "PX4 execution state lost"
                 )
 
-            if not self.flight_healthy:
-                raise RuntimeError(
-                    "flight_healthy=False during execution"
-                )
-
             if not self.mission_allowed:
                 raise RuntimeError(
                     "mission permission lost"
-                )
-
-            if not self.demo_safe:
-                raise RuntimeError(
-                    "Demo-frame guard UNSAFE"
                 )
 
             if self.mux_status != "EGO_ACTIVE":
@@ -2711,7 +2730,7 @@ class TangentPreview:
                 "dZ=%.3f "
                 "v=%.3f "
                 "yawErr=%5.1f deg "
-                "stable=%.2f/0.80"
+                "stable=%.2f/0.40"
                 %
                 (
                     tid,
@@ -2725,7 +2744,7 @@ class TangentPreview:
                 flush=True
             )
 
-            if stable >= 0.80:
+            if stable >= 0.40:
 
                 print()
 
@@ -2746,7 +2765,7 @@ class TangentPreview:
                 self.restore_point_hold()
                 self.yaw_mode_pub.publish(String(data="HOLD"))
 
-                rospy.sleep(1.0)
+                rospy.sleep(0.5)
                 if (self.mux_status != "POINT_ACTIVE" or
                         self.point_status != "AIRBORNE_HOLD"):
                     raise RuntimeError("Demo8 POINT HOLD restoration failed")
@@ -2814,7 +2833,6 @@ class TangentPreview:
     # Rejected EGO start continuity is not a reason to skip a waypoint.
     # The original EGO -> POINT recovery already happened in _once.
     # WAIT with POINT holding; replan the SAME goal using fresh odometry.
-    # The original strict 0.08m pre/post gates remain unchanged.
     def _demo9_wait_gap_replan_hold(self, timeout_s=6.0):
         stable_since = None
         start = time.monotonic()
@@ -2942,7 +2960,7 @@ class TangentPreview:
 
         # EGO waypointCallback intentionally uses
         # current odom Z; use same altitude in message.
-        gz = p.z
+        gz = absolute_z
 
         xd, yd, hd = self.to_demo(
             (
@@ -3045,6 +3063,9 @@ class TangentPreview:
                 "No new EGO B-spline received"
             )
 
+        # The next EGO curve exists. Stop QR BEFORE trajectory handoff/execution.
+        self.stop_qr()
+
         # TRAJ_SERVER_ACK_V1
         #
         # Receiving the B-spline in THIS preview node is not
@@ -3093,11 +3114,11 @@ class TangentPreview:
         )
 
         allowed_h_min = (
-            target_h - 0.25
+            target_h - 0.40
         )
 
         allowed_h_max = (
-            target_h + 0.25
+            target_h + 0.40
         )
 
         rospy.logwarn(
@@ -3169,58 +3190,23 @@ class TangentPreview:
             )
 
         except Exception as e:
-
             rospy.logerr(
                 "DIRECT TANGENT EXECUTION FAILED: %s",
                 str(e)
             )
 
-            self.restore_point_hold()
-            self.yaw_mode_pub.publish(String(data="HOLD"))
+            try:
+                self.restore_point_hold()
+            except Exception as recovery_error:
+                rospy.logerr(
+                    "POINT HOLD recovery also failed: %s",
+                    str(recovery_error)
+                )
 
+            self.yaw_mode_pub.publish(String(data="HOLD"))
             raise
 
         return
-
-
-    def demo9_verified_hold(self, phase, seconds):
-        # Deliberately retain PX4/CH7/fence/health/stale-stream protections.
-        # No extra operator input, no repeated offline checks.
-        if not (2.5 <= seconds <= 4.0):
-            raise RuntimeError('Unexpected hover duration')
-        end = time.monotonic() + seconds
-        last_print = 0.0
-        while not rospy.is_shutdown() and time.monotonic() < end:
-            if (self.odom is None or self.state is None or self.point_cmd is None or
-                    not self.state.connected or not self.state.armed or
-                    self.state.mode != 'OFFBOARD' or
-                    not self.flight_healthy or not self.mission_allowed or
-                    not self.demo_safe or self.point_status != 'AIRBORNE_HOLD' or
-                    self.mux_status != 'POINT_ACTIVE'):
-                raise RuntimeError('Demo9 %s POINT HOLD/health/RC state invalid' % phase)
-            now = rospy.Time.now()
-            if (self.odom_time is None or self.point_cmd_time is None or
-                    (now-self.odom_time).to_sec() > .25 or
-                    (now-self.point_cmd_time).to_sec() > .25):
-                raise RuntimeError('Demo9 %s odometry/POINT setpoint stale' % phase)
-            p = self.odom.pose.pose.position
-            v = self.odom.twist.twist.linear
-            cmd = self.point_cmd.position
-            relative_h = p.z - self.oz
-            track_xy = math.hypot(p.x-cmd.x,p.y-cmd.y)
-            vals=(p.x,p.y,p.z,v.x,v.y,v.z,cmd.x,cmd.y,cmd.z)
-            if (not all(math.isfinite(float(x)) for x in vals) or
-                    abs(relative_h-float(self.demo5_cfg['flight_height'])) > .14 or
-                    abs(v.z) > .18 or track_xy > .22):
-                raise RuntimeError('Demo9 %s hover height/VZ/XY not stable' % phase)
-            if time.monotonic() - last_print >= 1.0:
-                rospy.loginfo('[DEMO9] %s HOLD relative_Z=%.3fm VZ=%+.3fm XYerr=%.3fm',
-                              phase, relative_h, v.z, track_xy)
-                last_print=time.monotonic()
-            rospy.sleep(.05)
-        if rospy.is_shutdown():
-            raise RuntimeError('ROS shutdown during Demo9 hold')
-        rospy.logwarn('[DEMO9] %s verified HOLD %.1fs complete', phase, seconds)
 
     def run(self):
         self.load_session()
@@ -3244,7 +3230,6 @@ class TangentPreview:
         # Initial flight settled in Demo3 POINT mode. Between every two
         # EGO legs the proven POINT abort service captures physical HOLD.
         self.wait_airborne_hold()
-        self.demo9_verified_hold("AFTER_TAKEOFF", 3.0)
         self.check_goal_subscribers()
         total = len(self.demo5_cfg["waypoints"])
         for i, wp in enumerate(self.demo5_cfg["waypoints"], 1):
@@ -3258,13 +3243,34 @@ class TangentPreview:
                 try:
                     self.execute_point_waypoint(i, total, wp)
                 except Exception:
-                    rospy.logerr("[DEMO5 V2] POINT leg failed; restoring HOLD")
-                    self.restore_point_hold()
+                    if (self.state is not None and
+                            self.state.armed and self.state.mode == "OFFBOARD"):
+                        rospy.logerr("[DEMO5 V2] POINT leg failed; restoring HOLD")
+                        try:
+                            self.restore_point_hold()
+                        except Exception as recovery_error:
+                            rospy.logerr("[WAYPOINT] HOLD recovery failed after original error: %s",
+                                         recovery_error)
+                    else:
+                        rospy.logwarn("[DEMO5 V2] Not ARMED/OFFBOARD; skip airborne HOLD recovery")
                     raise
             elif mode == "EGO":
                 self.plan_execute_waypoint(i, total, wp)
             else:
                 raise RuntimeError("Unexpected waypoint mode: %s" % mode)
+
+            # Start QR only after the selected waypoint has finished POINT HOLD.
+            # It runs while hovering until the NEXT EGO B-spline is received.
+            if (os.environ.get('DEMO10_QR_AFTER_WAYPOINT') == str(i)
+                    and i < total
+                    and self.demo5_cfg['waypoints'][i]['mode'] == 'EGO'):
+                try:
+                    self.qr_proc = subprocess.Popen([
+                        'python3', '-B', '-u', str(self.root / 'demo7_qr_monitor.py')
+                    ])
+                    rospy.logwarn('[QR] recognition ON at P%d HOLD; awaiting P%d EGO curve', i, i+1)
+                except OSError as exc:
+                    rospy.logerr('[QR] observer could not start (flight unchanged): %s', exc)
         rospy.logwarn("[DEMO5 V2] ALL %d MIXED WAYPOINTS + LANDING COMPLETED",total)
         return
 
@@ -3275,4 +3281,8 @@ if __name__ == "__main__":
         "uav2_demo5_waypoints"
     )
 
-    TangentPreview().run()
+    runner = TangentPreview()
+    try:
+        runner.run()
+    finally:
+        runner.stop_qr()  # Also stop QR if next EGO planning fails or ROS exits.

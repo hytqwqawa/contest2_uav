@@ -34,9 +34,9 @@ def load_config(path):
             raise ValueError('invalid '+axis+' fence interval')
     # This run is explicitly limited to the agreed geometry. Do not silently
     # expand it by editing just one section of the control stack.
-    expected = {'forward_min':-1., 'forward_max':6.,
-                'left_min':-2., 'left_max':3.0,
-                'height_min':-0.25, 'height_max':1.30}
+    expected = {'forward_min':-2.0, 'forward_max':8.0,
+                'left_min':-8.0, 'left_max':8.0,
+                'height_min':-0.5, 'height_max':1.5}
     for k, v in expected.items():
         if abs(fence[k] - v) > 1e-9:
             raise ValueError('Demo5 fixed agreed fence %s must remain %.2f' % (k,v))

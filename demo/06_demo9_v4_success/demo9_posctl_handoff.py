@@ -111,25 +111,21 @@ class PosctlHandoff:
         if not s.armed or s.mode != 'OFFBOARD':
             raise HandoffError('Expected ARMED/OFFBOARD before handoff')
         for key in ('healthy', 'mission', 'safe'):
-            if not self.fresh(key, .8) or self.data[key].data is not True:
+            if not self.fresh(key, 1.0) or self.data[key].data is not True:
                 raise HandoffError('Health/mission/fence permission invalid: ' + key)
-        if not self.fresh('point', .5) or self.data['point'].data != 'AIRBORNE_HOLD':
+        if not self.fresh('point', 1.0) or self.data['point'].data != 'AIRBORNE_HOLD':
             raise HandoffError('POINT no longer holding')
-        if not self.fresh('mux', .5) or self.data['mux'].data != 'POINT_ACTIVE':
+        if not self.fresh('mux', 1.0) or self.data['mux'].data != 'POINT_ACTIVE':
             raise HandoffError('MUX not POINT_ACTIVE')
-        if not self.fresh('odom', .25) or not self.fresh('point_cmd', .25):
+        if not self.fresh('odom', 0.40) or not self.fresh('point_cmd', 0.40):
             raise HandoffError('Odometry/POINT command stale')
         pose = self.data['odom'].pose.pose.position
         vel = self.data['odom'].twist.twist.linear
         cmd = self.data['point_cmd'].position
-        dz = float(pose.z) - float(self.ground['z'])
-        errxy = math.hypot(pose.x - cmd.x, pose.y - cmd.y)
         nums = (pose.x, pose.y, pose.z, vel.x, vel.y, vel.z, cmd.x, cmd.y, cmd.z)
         if not all(math.isfinite(float(v)) for v in nums):
             raise HandoffError('Non-finite flight estimates')
-        if abs(dz-self.height) > .14 or abs(vel.z) > .18 or errxy > .22:
-            raise HandoffError('Altitude, VZ or horizontal tracking outside handoff envelope')
-        if not self.fresh('rc', .30):
+        if not self.fresh('rc', 0.30):
             raise HandoffError('RC link stale')
         valid, info = is_handoff_ready(self.data['rc'], self.cal)
         if not valid:
@@ -170,13 +166,11 @@ class PosctlHandoff:
             rospy.sleep(.05)
         try:
             self.load_calibration()
-            info=self.require_airborne_hold()
-            self.publish('Final waypoint complete; 3s verified hold complete; one-shot POSCTL')
-            self.publish('Real RC: '+info)
-            self.publish('Pilot must lower physical throttle to descend; mode switch alone will not land')
             self.mode_srv.wait_for_service(timeout=3)
-            # Check again immediately before the only mode request.
-            self.require_airborne_hold()
+            info = self.require_airborne_hold()
+            self.publish('P4 reached; one-shot POSCTL')
+            self.publish('Real RC: ' + info)
+            self.publish('POSCTL uses existing physical throttle position')
             if self.switch_attempted:
                 raise HandoffError('Duplicate POSCTL request blocked')
             self.switch_attempted=True

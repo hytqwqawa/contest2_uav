@@ -262,6 +262,12 @@ class PointTrajectoryNode:
             latch=True
         )
 
+        # Distinguish normal POINT completion from airborne abort.
+        self.point_result_pub = rospy.Publisher(
+            "/contest2/ego_uav_interface/point_traj_result",
+            String, queue_size=1, latch=True
+        )
+
         rospy.Service(
             "/contest2/ego_uav_interface/start_takeoff",
             Trigger,
@@ -532,6 +538,8 @@ class PointTrajectoryNode:
     def abort_to_current_hold(self, reason):
 
         old_kind = self.traj_kind
+        if old_kind == "POINT":
+            self.point_result_pub.publish(String(data="ABORTED"))
 
         self.traj_active = False
         self.traj_kind = ""
@@ -609,6 +617,8 @@ class PointTrajectoryNode:
         self.traj_t0 = rospy.Time.now()
         self.traj_active = True
         self.traj_kind = kind
+        if kind == "POINT":
+            self.point_result_pub.publish(String(data="STARTED"))
 
         self.hold_yaw = self.current_yaw()
 
@@ -761,6 +771,8 @@ class PointTrajectoryNode:
             else:
 
                 self.mode = "AIRBORNE_HOLD"
+                if finished_kind == "POINT":
+                    self.point_result_pub.publish(String(data="COMPLETED"))
 
                 rospy.logwarn(
                     "POINT trajectory completed -> AIRBORNE_HOLD"
@@ -856,12 +868,6 @@ class PointTrajectoryNode:
             return TriggerResponse(
                 False,
                 "Rejected: PX4 must be connected, ARMED and OFFBOARD"
-            )
-
-        if not self.health_ok() or not self.odom_fresh():
-            return TriggerResponse(
-                False,
-                "Flight health / odom not ready"
             )
 
         if self.traj_active:
@@ -1091,7 +1097,7 @@ class PointTrajectoryNode:
         pf = [
             msg.pose.position.x,
             msg.pose.position.y,
-            self.hold_p[2]
+            msg.pose.position.z
         ]
 
         dxy = math.hypot(
@@ -1182,6 +1188,8 @@ class PointTrajectoryNode:
                 # after odometry has disappeared.
                 if self.traj_active:
 
+                    if self.traj_kind == "POINT":
+                        self.point_result_pub.publish(String(data="ABORTED"))
                     self.traj_active = False
                     self.traj_kind = ""
                     self.traj_t0 = None

@@ -30,7 +30,7 @@
   <!-- 2. MAVROS : PX4 -> /contest2/mavros -->
   <include file="$(find sunray_uav_control)/launch/sunray_mavros_exp.launch">
     <arg name="uav_name" value="contest"/>
-    <arg name="uav_id" value="1"/>
+    <arg name="uav_id" value="2"/>
   </include>
 
 
@@ -38,7 +38,7 @@
   <!-- DEMO3 ONLY: consume landing_safe_dev from sanitizer -->
   <include file="$(find sunray_uav_control)/launch/vision_pose_node.launch" ns="contest2">
     <arg name="uav_name" value="contest"/>
-    <arg name="uav_id" value="1"/>
+    <arg name="uav_id" value="2"/>
     <arg name="t265_odom_topic"
          value="/contest2/t265/odom/landing_safe_dev"/>
     <arg name="enable_rangeSensor"

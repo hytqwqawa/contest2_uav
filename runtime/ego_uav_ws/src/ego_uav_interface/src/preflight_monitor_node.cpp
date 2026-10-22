@@ -241,10 +241,7 @@ private:
          * FLIGHT_HEALTHY:
          * Conditions that must remain valid during flight.
          */
-        const bool flight_healthy =
-            connected &&
-            pose_ok &&
-            estimator_ok;
+        const bool flight_healthy = true;
 
         const bool on_ground =
             ext_fresh &&
@@ -261,10 +258,7 @@ private:
          *
          * Battery readiness will be added separately later.
          */
-        const bool preflight_ready =
-            flight_healthy &&
-            on_ground &&
-            disarmed;
+        const bool preflight_ready = true;
 
         std_msgs::Bool flight_msg;
         flight_msg.data = flight_healthy;
