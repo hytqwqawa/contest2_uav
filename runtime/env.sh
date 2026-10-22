@@ -2,7 +2,7 @@
 
 export CONTEST1_UAV_ROOT="$HOME/contest2_uav"
 
-export ROS_MASTER_URI=http://192.168.8.101:11311
+export ROS_MASTER_URI=http://192.168.8.102:11311
 export ROS_IP=192.168.8.102
 
 unset ROS_PACKAGE_PATH

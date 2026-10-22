@@ -5,7 +5,7 @@ D="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$HOME/contest2_uav"
 source "$ROOT/runtime/env.sh"
 export DEMO10_QR_AFTER_WAYPOINT=1
-export ROS_MASTER_URI=http://192.168.8.101:11311
+export ROS_MASTER_URI=http://192.168.8.102:11311
 export ROS_IP=192.168.8.102
 export ROS_NAMESPACE=/contest2
 python3 -B "$D/demo5_config.py" --check "$D/demo5_waypoints.yaml"

@@ -41,7 +41,7 @@ Terminal 3: `~/contest2_uav/demo/04_5m_pole/run_mission.sh`
 ## Namespace and hardware
 
 - All project business topics under `/contest2`.
-- ROS master `192.168.8.101:11311`, contest2 ROS_IP `192.168.8.102`.
+- ROS master `192.168.8.102:11311`, contest2 ROS_IP `192.168.8.102`.
 - MAVROS uav_name=contest and uav_id=2.
 - Uses contest2's existing `runtime/env.sh`, `sunray_ws`, `Fast-Drone-250`,
   `ego_uav_ws` and their existing camera extrinsic/EGO launch configuration.

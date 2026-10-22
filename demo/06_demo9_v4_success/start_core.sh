@@ -6,7 +6,7 @@ ROOT="$HOME/contest2_uav"
 RUNTIME="$ROOT/runtime"
 LOGROOT="$ROOT/data/logs/core_06_demo9_v4_success"
 mkdir -p "$LOGROOT" "$ROOT/data/logs/ros"
-export ROS_MASTER_URI=http://192.168.8.101:11311
+export ROS_MASTER_URI=http://192.168.8.102:11311
 export ROS_IP=192.168.8.102
 export ROS_LOG_DIR="$ROOT/data/logs/ros"
 unset ROS_PACKAGE_PATH CMAKE_PREFIX_PATH

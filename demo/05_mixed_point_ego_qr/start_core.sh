@@ -15,7 +15,7 @@ DASHBOARD="$COMMON/scripts/uav2_system_ready_node.py"
 LOG_ROOT="$ROOT/data/logs/core_05_mixed_point_ego_qr"
 ROS_LOG_ROOT="$ROOT/data/logs/ros"
 
-export ROS_MASTER_URI=http://192.168.8.101:11311
+export ROS_MASTER_URI=http://192.168.8.102:11311
 export ROS_IP=192.168.8.102
 
 mkdir -p "$LOG_ROOT"
