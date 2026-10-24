@@ -80,7 +80,7 @@ class TangentPreview:
 
         # RVIZ_REPLAN_TRAJ_V1
         self.traj_marker_pub = rospy.Publisher(
-            "/contest2/uav2/replan_traj",
+            "/contest1/uav2/replan_traj",
             Marker,
             queue_size=5,
             latch=True
@@ -90,7 +90,7 @@ class TangentPreview:
         # Continuous commanded trajectory. This naturally contains
         # the path actually followed across EGO replans.
         self.executed_traj_pub = rospy.Publisher(
-            "/contest2/uav2/executed_traj",
+            "/contest1/uav2/executed_traj",
             Marker,
             queue_size=1,
             latch=True
@@ -101,7 +101,7 @@ class TangentPreview:
         # ACTUAL_TRAJ_RVIZ_V1
         # Real aircraft trajectory from PX4 odometry.
         self.actual_traj_pub = rospy.Publisher(
-            "/contest2/uav2/actual_traj",
+            "/contest1/uav2/actual_traj",
             Marker,
             queue_size=1,
             latch=True
@@ -114,39 +114,39 @@ class TangentPreview:
         self.bspline_event = threading.Event()
 
         self.goal_pub = rospy.Publisher(
-            "/contest2/move_base_simple/goal",
+            "/contest1/move_base_simple/goal",
             PoseStamped,
             queue_size=1
         )
         # POINT-specific goal topic is intentionally isolated from EGO/RViz.
         self.point_goal_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/point_goal",
+            "/contest1/ego_uav_interface/point_goal",
             PoseStamped,
             queue_size=1
         )
         self.point_cmd = None
         self.point_cmd_time = None
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/point_setpoint",
+            "/contest1/ego_uav_interface/point_setpoint",
             PositionTarget,
             self.point_cmd_cb,
             queue_size=20
         )
 
         self.active_wp_pub = rospy.Publisher(
-            "/contest2/demo5/active_waypoint", String,
+            "/contest1/demo5/active_waypoint", String,
             queue_size=1, latch=True
         )
 
         self.path_pub = rospy.Publisher(
-            "/contest2/uav2_static/ego_path",
+            "/contest1/uav2_static/ego_path",
             RosPath,
             queue_size=1,
             latch=True
         )
 
         self.tangent_pub = rospy.Publisher(
-            "/contest2/yaw_tangent_demo/tangent_markers",
+            "/contest1/yaw_tangent_demo/tangent_markers",
             MarkerArray,
             queue_size=1,
             latch=True
@@ -154,74 +154,74 @@ class TangentPreview:
 
         # DIRECT_TANGENT_EXEC_V1
         self.yaw_mode_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/yaw_mode",
+            "/contest1/ego_uav_interface/yaw_mode",
             String,
             queue_size=1,
             latch=True
         )
         self.yaw_target_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/yaw_target_deg",
+            "/contest1/ego_uav_interface/yaw_target_deg",
             Float64,
             queue_size=1,
             latch=False
         )
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/ego_setpoint",
+            "/contest1/ego_uav_interface/ego_setpoint",
             PositionTarget, self.ego_setpoint_cb, queue_size=20
         )
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/ego_bridge_status",
+            "/contest1/ego_uav_interface/ego_bridge_status",
             String, self.bridge_status_cb, queue_size=20
         )
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/trajectory_interface_status",
+            "/contest1/ego_uav_interface/trajectory_interface_status",
             String, self.if_status_cb, queue_size=20
         )
         rospy.Subscriber(
-            "/contest2/mavros/setpoint_raw/local",
+            "/contest1/mavros/setpoint_raw/local",
             PositionTarget, self.mavros_sp_cb, queue_size=20
         )
 
         self.trigger_pub = rospy.Publisher(
-            "/contest2/traj_start_trigger",
+            "/contest1/traj_start_trigger",
             PoseStamped,
             queue_size=1
         )
 
         rospy.Subscriber(
-            "/contest2/mavros/local_position/odom",
+            "/contest1/mavros/local_position/odom",
             Odometry,
             self.odom_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest2/mavros/state",
+            "/contest1/mavros/state",
             State,
             self.state_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/point_traj_status",
+            "/contest1/ego_uav_interface/point_traj_status",
             String,
             self.point_cb,
             queue_size=10
         )
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/point_traj_result",
+            "/contest1/ego_uav_interface/point_traj_result",
             String, self.point_result_cb, queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/trajectory_mux_status",
+            "/contest1/ego_uav_interface/trajectory_mux_status",
             String,
             self.mux_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/demo_frame_safe",
+            "/contest1/ego_uav_interface/demo_frame_safe",
             Bool,
             self.safe_cb,
             queue_size=10
@@ -229,21 +229,21 @@ class TangentPreview:
 
         # DIRECT_TANGENT_EXEC_V1
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/flight_healthy",
+            "/contest1/ego_uav_interface/flight_healthy",
             Bool,
             self.health_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/rc_mission_allowed",
+            "/contest1/ego_uav_interface/rc_mission_allowed",
             Bool,
             self.mission_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest2/position_cmd",
+            "/contest1/position_cmd",
             PositionCommand,
             self.cmd_cb,
             queue_size=100
@@ -251,14 +251,14 @@ class TangentPreview:
 
         # ACTUAL_TRAJ_RVIZ_V1
         rospy.Subscriber(
-            "/contest2/mavros/local_position/odom",
+            "/contest1/mavros/local_position/odom",
             Odometry,
             self.actual_odom_cb,
             queue_size=50
         )
 
         rospy.Subscriber(
-            "/contest2/drone_0_planning/bspline",
+            "/contest1/drone_0_planning/bspline",
             Bspline,
             self.bspline_cb,
             queue_size=10
@@ -490,7 +490,7 @@ class TangentPreview:
 
             try:
                 msg = rospy.wait_for_message(
-                    "/contest2/position_cmd",
+                    "/contest1/position_cmd",
                     PositionCommand,
                     timeout=0.30
                 )
@@ -560,7 +560,7 @@ class TangentPreview:
 
         raise RuntimeError(
             "traj_server did not ACK B-spline "
-            "traj_id=%d on /contest2/position_cmd"
+            "traj_id=%d on /contest1/position_cmd"
             % traj_id
         )
 
@@ -989,7 +989,7 @@ class TangentPreview:
 
         nominal_tf = float(
             rospy.get_param(
-                "/contest2/drone_0_traj_server/"
+                "/contest1/drone_0_traj_server/"
                 "traj_server/time_forward",
                 1.0
             )
@@ -1392,7 +1392,7 @@ class TangentPreview:
 
         for topic, nodes in subs:
 
-            if topic == "/contest2/move_base_simple/goal":
+            if topic == "/contest1/move_base_simple/goal":
                 goal_subs = nodes
                 break
 
@@ -1407,7 +1407,7 @@ class TangentPreview:
         ):
             raise RuntimeError(
                 "point_traj_node subscribes to "
-                "/contest2/move_base_simple/goal -- unsafe"
+                "/contest1/move_base_simple/goal -- unsafe"
             )
 
         if not any(
@@ -1657,10 +1657,10 @@ class TangentPreview:
         # Never re-enable the trajectory interface on an unverified state.
         # This is a DEV candidate, not approved for powered flight.
         rospy.logwarn('[HANDOFF_V4] Begin EGO -> POINT HOLD rejoin')
-        disable = '/contest2/ego_uav_interface/disable_trajectory'
-        abort = '/contest2/ego_uav_interface/abort_trajectory'
-        use_point = '/contest2/ego_uav_interface/use_point'
-        enable = '/contest2/ego_uav_interface/enable_trajectory'
+        disable = '/contest1/ego_uav_interface/disable_trajectory'
+        abort = '/contest1/ego_uav_interface/abort_trajectory'
+        use_point = '/contest1/ego_uav_interface/use_point'
+        enable = '/contest1/ego_uav_interface/enable_trajectory'
 
         # Disable upstream trajectory and wait for a *fresh actual output*
         # from the downstream 50 Hz HOLD. MUX will use the SAME output as
@@ -2211,6 +2211,10 @@ class TangentPreview:
             data="P%d/%d EGO_TERMINAL_YAW %.1fdeg_WORLD" % (
                 self.active_wp_num, self.wp_total, world_yaw_deg)))
         rospy.logwarn("[DEMO8] terminal yaw target WORLD=%+.1f deg", world_yaw_deg)
+        rospy.set_param(
+            "/contest2/ego_uav_interface/terminal_yaw_hold_z",
+            float(gz)
+	)
         self.yaw_target_pub.publish(Float64(data=world_yaw_deg))
         rospy.sleep(0.20)  # target callback precedes FIXED mode entry
         self.yaw_mode_pub.publish(String(data="FIXED"))
@@ -2437,12 +2441,12 @@ class TangentPreview:
 
         # Physical output HOLD first.
         self.call_service(
-            "/contest2/ego_uav_interface/disable_trajectory"
+            "/contest1/ego_uav_interface/disable_trajectory"
         )
 
         # Select the already validated EGO command.
         self.call_service(
-            "/contest2/ego_uav_interface/use_ego"
+            "/contest1/ego_uav_interface/use_ego"
         )
 
         deadline = time.time() + 1.5
@@ -2474,7 +2478,7 @@ class TangentPreview:
 
         if self.trigger_pub.get_num_connections() < 2:
             raise RuntimeError(
-                "/contest2/traj_start_trigger does not have "
+                "/contest1/traj_start_trigger does not have "
                 "both EGO + traj_server subscribers"
             )
 
@@ -2552,7 +2556,7 @@ class TangentPreview:
         # ----------------------------------------------------
 
         self.call_service(
-            "/contest2/ego_uav_interface/enable_trajectory"
+            "/contest1/ego_uav_interface/enable_trajectory"
         )
 
         rospy.logwarn(

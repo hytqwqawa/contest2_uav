@@ -46,48 +46,48 @@ class EgoTrajectoryBridge:
         self.mux_ego_active = False
 
         self.output_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/ego_setpoint",
+            "/contest1/ego_uav_interface/ego_setpoint",
             PositionTarget,
             queue_size=50
         )
 
         self.status_pub = rospy.Publisher(
-            "/contest2/ego_uav_interface/ego_bridge_status",
+            "/contest1/ego_uav_interface/ego_bridge_status",
             String,
             queue_size=1,
             latch=True
         )
 
         rospy.Subscriber(
-            "/contest2/position_cmd",
+            "/contest1/position_cmd",
             PositionCommand,
             self.command_cb,
             queue_size=100
         )
 
         rospy.Subscriber(
-            "/contest2/mavros/local_position/odom",
+            "/contest1/mavros/local_position/odom",
             Odometry,
             self.odom_cb,
             queue_size=50
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/trajectory_mux_status",
+            "/contest1/ego_uav_interface/trajectory_mux_status",
             String,
             self.mux_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/yaw_mode",
+            "/contest1/ego_uav_interface/yaw_mode",
             String,
             self.yaw_mode_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest2/ego_uav_interface/yaw_target_deg",
+            "/contest1/ego_uav_interface/yaw_target_deg",
             Float64,
             self.yaw_target_cb,
             queue_size=10
@@ -361,16 +361,23 @@ class EgoTrajectoryBridge:
                 )
                 return
 
-            # FIXED_ODOM_XYZ_V1
-            #
-            # In-place ALIGN must hold the aircraft's ACTUAL
-            # position at FIXED entry, not the EGO t=0
-            # PositionCommand, which may have a nonzero first gap.
-            self._fixed_hold_xyz = (
-                self.current_position[0],
-                self.current_position[1],
-                self.current_position[2]
-            )
+	    try:
+		  z_ref = float(rospy.get_param(
+		      "/contest2/ego_uav_interface/terminal_yaw_hold_z"
+		  ))
+	    except (KeyError, TypeError, ValueError):
+		  rospy.logerr("[FIXED] target height unavailable")
+		  return
+
+	    if not math.isfinite(z_ref):
+		  rospy.logerr("[FIXED] target height invalid")
+		  return
+
+	    self._fixed_hold_xyz = (
+		  self.current_position[0],
+		  self.current_position[1],
+		  z_ref
+	    )
 
             rospy.logwarn(
                 "[EGO BRIDGE] FIXED ODOM XYZ captured: "
