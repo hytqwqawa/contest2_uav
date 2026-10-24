@@ -40,7 +40,7 @@
     <!-- Health monitoring remains active during this interval.
          Only software OFFBOARD admission is delayed after ARM. -->
     <param name="post_arm_settle_time"
-           value="5.0"/>
+           value="2.0"/>
 
   </node>
 
