@@ -7,6 +7,10 @@ source "$ROOT/runtime/env.sh"
 export ROS_MASTER_URI=http://192.168.8.102:11311
 export ROS_IP=192.168.8.102
 export ROS_NAMESPACE=/contest2
+# Optional 1-second hover after arrival + terminal yaw at selected P numbers.
+# Example: HOVER_AFTER_WAYPOINTS=(1 2 3 4); empty = disabled.
+HOVER_AFTER_WAYPOINTS=(3)
+export DEMO10_HOVER_AFTER_WAYPOINTS="${HOVER_AFTER_WAYPOINTS[*]}"
 python3 -B "$D/demo5_config.py" --check "$D/demo5_waypoints.yaml"
 LOGDIR="$ROOT/data/logs/demo10_compact/mission_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$LOGDIR"

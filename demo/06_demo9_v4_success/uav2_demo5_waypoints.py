@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import math
+import os
 import time
 import threading
 import subprocess
@@ -37,6 +38,12 @@ class TangentPreview:
     def __init__(self):
 
         self.root = Path(__file__).resolve().parent
+
+        # Selected intermediate EGO waypoints pause for 1s after FIXED yaw.
+        self.hover_after_waypoints = {
+            int(n) for n in os.environ.get(
+                'DEMO10_HOVER_AFTER_WAYPOINTS', '').split()
+        }
 
         self.session_path = (
             self.root
@@ -2747,6 +2754,17 @@ class TangentPreview:
                 if terminal_yaw_world_deg is not None:
                     self.execute_terminal_yaw(
                         gx, gy, gz, terminal_yaw_world_deg, deadline)
+
+                    # FIXED already commands zero V/A and goal height (+0.8m
+                    # in the Demo frame). Hold exactly 1s before POINT rejoin.
+                    # Do not change yaw mode or publish another setpoint.
+                    if (not land_after and
+                            self.active_wp_num in self.hover_after_waypoints):
+                        rospy.logwarn(
+                            '[WAYPOINT] P%d yaw done -> FIXED HOVER 1.0s, '
+                            'Demo height %+.2fm',
+                            self.active_wp_num, self.demo5_cfg['flight_height'])
+                        rospy.sleep(1.0)
 
                 # Existing Demo7 STOP/HOLD chain: disable EGO, POINT abort,
                 # MUX POINT, then re-enable under existing safety checks.
