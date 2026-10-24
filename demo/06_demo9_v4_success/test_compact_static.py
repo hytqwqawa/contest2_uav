@@ -24,8 +24,10 @@ def check():
     assert 'pilot_takeoff.py' in s and 'uav2_demo5_waypoints.py' in s
     assert 'start_demo5.sh' not in s and 'run_demo9.sh' not in s
     assert 'rostopic echo' in s and 'session_frame.yaml' in s
-    assert 'demo7_qr_monitor' not in s
+    assert 'demo7_qr_monitor.py' in s
+    assert 'DEMO10_QR_AFTER_WAYPOINT' not in s
     src = (ROOT/'uav2_demo5_waypoints.py').read_text()
+    assert 'DEMO10_QR_AFTER_WAYPOINT' not in src and 'stop_qr' not in src
     assert "self.root / 'demo9_posctl_handoff.py'" in src
     assert 'DEMO10_LANDING_MODE' not in src
     assert 'point_status == "AIRBORNE_HOLD"' in src

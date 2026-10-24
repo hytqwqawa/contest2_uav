@@ -4,7 +4,6 @@ set -eo pipefail
 D="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$HOME/contest2_uav"
 source "$ROOT/runtime/env.sh"
-export DEMO10_QR_AFTER_WAYPOINT=1
 export ROS_MASTER_URI=http://192.168.8.102:11311
 export ROS_IP=192.168.8.102
 export ROS_NAMESPACE=/contest2
@@ -49,6 +48,8 @@ if [ "$ready" -ne 1 ]; then
   echo '[ERROR] takeoff frame not established'; tail -n 45 "$LOGDIR/frame.log"; exit 1
 fi
 echo '[MISSION] Frame ready. Inspect numbered waypoints/obstacles before CH7 and ARM.'
+echo '[MISSION] QR observer enabled for the full mission (no flight commands).'
+PYTHONUNBUFFERED=1 python3 -B -u "$D/demo7_qr_monitor.py" & PIDS+=("$!")
 # Optional visualization; failure must not veto the flight setup itself.
 if [ "${SHOW_RVIZ:-1}" = '1' ] && command -v rviz >/dev/null 2>&1; then
   rviz -d "$D/yaw_tangent_demo.rviz" /tf:=/contest2/tf /tf_static:=/contest2/tf_static \

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import math
-import os
 import time
 import threading
 import subprocess
@@ -38,7 +37,6 @@ class TangentPreview:
     def __init__(self):
 
         self.root = Path(__file__).resolve().parent
-        self.qr_proc = None
 
         self.session_path = (
             self.root
@@ -1969,20 +1967,6 @@ class TangentPreview:
 
 
 
-    def stop_qr(self):
-        proc, self.qr_proc = self.qr_proc, None
-        if proc is None:
-            return
-        if proc.poll() is None:
-            proc.terminate()
-            try:
-                proc.wait(timeout=1.0)
-            except subprocess.TimeoutExpired:
-                proc.kill()
-                proc.wait()
-        rospy.logwarn('[QR] recognition OFF')
-
-
     # Final waypoint: return control to the physical pilot in POSCTL.
     def start_land(self):
         script = self.root / 'demo9_posctl_handoff.py'
@@ -3067,9 +3051,6 @@ class TangentPreview:
                 "No new EGO B-spline received"
             )
 
-        # The next EGO curve exists. Stop QR BEFORE trajectory handoff/execution.
-        self.stop_qr()
-
         # TRAJ_SERVER_ACK_V1
         #
         # Receiving the B-spline in THIS preview node is not
@@ -3263,18 +3244,6 @@ class TangentPreview:
             else:
                 raise RuntimeError("Unexpected waypoint mode: %s" % mode)
 
-            # Start QR only after the selected waypoint has finished POINT HOLD.
-            # It runs while hovering until the NEXT EGO B-spline is received.
-            if (os.environ.get('DEMO10_QR_AFTER_WAYPOINT') == str(i)
-                    and i < total
-                    and self.demo5_cfg['waypoints'][i]['mode'] == 'EGO'):
-                try:
-                    self.qr_proc = subprocess.Popen([
-                        'python3', '-B', '-u', str(self.root / 'demo7_qr_monitor.py')
-                    ])
-                    rospy.logwarn('[QR] recognition ON at P%d HOLD; awaiting P%d EGO curve', i, i+1)
-                except OSError as exc:
-                    rospy.logerr('[QR] observer could not start (flight unchanged): %s', exc)
         rospy.logwarn("[DEMO5 V2] ALL %d MIXED WAYPOINTS + LANDING COMPLETED",total)
         return
 
@@ -3286,7 +3255,4 @@ if __name__ == "__main__":
     )
 
     runner = TangentPreview()
-    try:
-        runner.run()
-    finally:
-        runner.stop_qr()  # Also stop QR if next EGO planning fails or ROS exits.
+    runner.run()
