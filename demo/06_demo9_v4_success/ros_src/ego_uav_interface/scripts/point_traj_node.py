@@ -61,7 +61,7 @@ class PointTrajectoryNode:
 
         self.max_acc = rospy.get_param(
             "~max_acc",
-            0.60
+            0.80
         )
 
         self.takeoff_speed = rospy.get_param(

@@ -21,8 +21,8 @@
   <arg name="map_size_z" default="3.0"/>
 
   <!-- Conservative values for first real-platform integration -->
-  <arg name="max_vel" default="0.35"/>
-  <arg name="max_acc" default="1.0"/>
+  <arg name="max_vel" default="0.15"/>
+  <arg name="max_acc" default="0.8"/>
 
   <arg name="planning_horizon" default="6.0"/>
 
