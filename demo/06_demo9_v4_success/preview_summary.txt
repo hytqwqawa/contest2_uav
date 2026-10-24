@@ -1,19 +1,19 @@
 ========== 5M TANGENT PREVIEW ==========
-traj_id              = 4
-duration_like_span    = 5.072
-current_yaw_deg       = -178.62
-initial_tangent_deg   = 165.14
-execution_initial_yaw_deg = 171.60
-execution_yaw_error_deg   = -9.78
+traj_id              = 9
+duration_like_span    = 7.310
+current_yaw_deg       = -130.25
+initial_tangent_deg   = 37.62
+execution_initial_yaw_deg = -11.75
+execution_yaw_error_deg   = 118.50
 yaw_time_forward          = 1.00 s
-yaw_forward_distance      = 0.163 m
-alignment_lookahead       = 1.40 s
-final_tangent_deg     = -179.38
-initial_yaw_error_deg = -16.24
-DEMO forward range    = [+1.083, +1.916] m
-DEMO left range       = [-1.524, -1.494] m
-DEMO height range     = [+0.776, +0.803] m
-end_xy_to_5m_goal     = 0.083 m
+yaw_forward_distance      = 0.172 m
+alignment_lookahead       = 2.20 s
+final_tangent_deg     = -46.69
+initial_yaw_error_deg = 167.87
+DEMO forward range    = [+3.760, +4.501] m
+DEMO left range       = [-1.500, -0.876] m
+DEMO height range     = [+0.800, +0.818] m
+end_xy_to_5m_goal     = 0.001 m
 PATH_INSIDE_DEMO_FENCE = True
 trajectory_scope      = FULL_GOAL
 =========================================
