@@ -46,48 +46,48 @@ class EgoTrajectoryBridge:
         self.mux_ego_active = False
 
         self.output_pub = rospy.Publisher(
-            "/contest1/ego_uav_interface/ego_setpoint",
+            "/contest2/ego_uav_interface/ego_setpoint",
             PositionTarget,
             queue_size=50
         )
 
         self.status_pub = rospy.Publisher(
-            "/contest1/ego_uav_interface/ego_bridge_status",
+            "/contest2/ego_uav_interface/ego_bridge_status",
             String,
             queue_size=1,
             latch=True
         )
 
         rospy.Subscriber(
-            "/contest1/position_cmd",
+            "/contest2/position_cmd",
             PositionCommand,
             self.command_cb,
             queue_size=100
         )
 
         rospy.Subscriber(
-            "/contest1/mavros/local_position/odom",
+            "/contest2/mavros/local_position/odom",
             Odometry,
             self.odom_cb,
             queue_size=50
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/trajectory_mux_status",
+            "/contest2/ego_uav_interface/trajectory_mux_status",
             String,
             self.mux_cb,
             queue_size=20
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/yaw_mode",
+            "/contest2/ego_uav_interface/yaw_mode",
             String,
             self.yaw_mode_cb,
             queue_size=10
         )
 
         rospy.Subscriber(
-            "/contest1/ego_uav_interface/yaw_target_deg",
+            "/contest2/ego_uav_interface/yaw_target_deg",
             Float64,
             self.yaw_target_cb,
             queue_size=10
