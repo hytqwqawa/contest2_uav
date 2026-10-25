@@ -44,7 +44,7 @@ fi
 echo '[BACKEND] D435 depth camera...'
 roslaunch realsense2_camera rs_camera.launch \
   serial_no:=939722070209 camera:=camera \
-  enable_depth:=true enable_color:=true \
+  enable_depth:=true enable_color:=true align_depth:=true \
   color_width:=640 color_height:=480 color_fps:=30 \
   enable_infra1:=false enable_infra2:=false \
   enable_gyro:=false enable_accel:=false enable_pose:=false \
