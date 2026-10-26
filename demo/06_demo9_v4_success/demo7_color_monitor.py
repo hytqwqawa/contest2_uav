@@ -248,32 +248,66 @@ class ColorMonitor:
                 not odom.header.frame_id):
             return None
 
-        # One nearest-timestamp aligned-depth frame; region inside the color.
-        depth = self.bridge.imgmsg_to_cv2(depth_msg, desired_encoding='passthrough')
-        contour = color_contour[1]
+        # 与 QR 一样：取目标中心附近 9x9 的深度中位数
+        # 但额外要求像素处于颜色轮廓内部，避免背景干扰
+        depth = self.bridge.imgmsg_to_cv2(
+            depth_msg, desired_encoding='passthrough'
+        )
+
         observation = color_contour[0]
-        x, y, w, h = observation['bbox_xywh']
-        roi_mask = np.zeros((h, w), dtype=np.uint8)
-        translated = contour.copy()
-        translated[:, :, 0] -= x
-        translated[:, :, 1] -= y
-        cv2.drawContours(roi_mask, [translated], -1, 255, thickness=-1)
+        contour = color_contour[1]
+
+        u, v = observation['pixel_xy']
+        if not (math.isfinite(u) and math.isfinite(v)):
+            return None
+
+        ix, iy = int(round(u)), int(round(v))
+        rad = 4  # 9x9，与二维码一致
+
+        x0 = max(0, ix - rad)
+        x1 = min(depth_msg.width, ix + rad + 1)
+        y0 = max(0, iy - rad)
+        y1 = min(depth_msg.height, iy + rad + 1)
+
+        if x0 >= x1 or y0 >= y1:
+            return None
+
+        # 生成颜色轮廓掩膜
+        mask = np.zeros(
+            (depth_msg.height, depth_msg.width),
+            dtype=np.uint8
+        )
+        cv2.drawContours(mask, [contour], -1, 255, thickness=-1)
+
         erode_px = int(self.cfg['depth_interior_erode_px'])
         if erode_px:
-            kernel = np.ones((2 * erode_px + 1, 2 * erode_px + 1), np.uint8)
-            roi_mask = cv2.erode(roi_mask, kernel)
-        patch = np.asarray(depth[y:y+h, x:x+w], dtype=np.float64)
-        if patch.shape != roi_mask.shape:
-            return None
+            kernel = np.ones(
+                (2 * erode_px + 1, 2 * erode_px + 1),
+                dtype=np.uint8
+            )
+            mask = cv2.erode(mask, kernel)
+
+        # 只取质心附近 9x9 的有效颜色区域深度
+        patch = np.asarray(
+            depth[y0:y1, x0:x1],
+            dtype=np.float64
+        )
+
         if depth_msg.encoding == '16UC1':
             patch *= 0.001
-        valid = patch[(roi_mask > 0) & np.isfinite(patch) &
-                      (patch >= float(self.cfg['min_depth_m'])) &
-                      (patch <= float(self.cfg['max_depth_m']))]
-        if valid.size < int(self.cfg['min_valid_depth_pixels']):
+
+        valid = patch[
+            (mask[y0:y1, x0:x1] > 0) &
+            np.isfinite(patch) &
+            (patch >= float(self.cfg['min_depth_m'])) &
+            (patch <= float(self.cfg['max_depth_m']))
+        ]
+
+        # 和 QR 一样，至少需要 5 个有效深度像素
+        if valid.size < 5:
             return None
+
         z = float(np.median(valid))
-        u, v = observation['pixel_xy']
         fx, fy, cx, cy = map(float, (info.K[0], info.K[4], info.K[2], info.K[5]))
         p_camera = np.asarray([(u-cx)*z/fx, (v-cy)*z/fy, z], dtype=np.float64)
         ep = ext.pose.pose.position

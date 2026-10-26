@@ -11,7 +11,7 @@ waypoint_margin: 0.2
 
 waypoints:
   - {forward: 3.000, left: 0.000, mode: EGO, yaw_deg: 0.0} 
-  - {forward: 4.000, left: -1.000, mode: EGO, yaw_deg: -135.0} 
+  - {forward: 4.000, left: -1.000, mode: EGO, yaw_deg: -160.0} 
   - {forward: 4.500, left: -1.500, mode: EGO, yaw_deg: -180.0}  
   - {forward: 4.000, left: -2.000, mode: EGO, yaw_deg: +135.0}  
   - {forward: 0.000, left: -2.000, mode: EGO, yaw_deg: -180.0}  

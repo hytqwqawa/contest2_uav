@@ -1966,7 +1966,7 @@ class TangentPreview:
         marker.header.stamp = rospy.Time.now()
 
         marker.ns = "ego_replan"
-        marker.id = int(traj_id)
+        marker.id = 0
 
         marker.type = Marker.LINE_STRIP
         marker.action = Marker.ADD
@@ -2598,7 +2598,8 @@ class TangentPreview:
             candidate = self.bspline
             if (candidate is not None and
                     int(candidate.traj_id) != last_checked_bspline_id):
-                self.validated_ego_path(candidate)
+                pts = self.validated_ego_path(candidate)
+                self.publish_traj_marker(pts, int(candidate.traj_id))
                 rospy.logwarn(
                     "[DEMO5] In-flight EGO replan %d -> %d: fence OK",
                     last_checked_bspline_id, int(candidate.traj_id)
