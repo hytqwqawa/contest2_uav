@@ -24,7 +24,7 @@ from geometry_msgs.msg import PointStamped
 from mavros_msgs.msg import State
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import CameraInfo, Image
-from std_msgs.msg import String
+from std_msgs.msg import Bool, String
 
 from color_stability import COLORS, ColorStability
 
@@ -99,6 +99,11 @@ class ColorMonitor:
         self.bridge = CvBridge()
         self.lock = threading.Lock()
         self.last_process = 0.0
+        # Ground-test/ARM gates are unchanged. This independent window
+        # gates actual color decoding, not merely the console display.
+        self.window_active = False
+        rospy.Subscriber(NS + '/demo7/color/window_active', Bool,
+                         self.on_color_window, queue_size=1)
         self.px4_armed = False
         self.px4_offboard = False
         self.px4_last_seen = None
@@ -128,6 +133,15 @@ class ColorMonitor:
                          self.on_state, queue_size=1)
         rospy.loginfo('[DEMO7 COLOR] ready: <=%.1fHz, stable=%d, ground_test=%s',
                       self.rate, self.stability.stable_frames, self.ground_test)
+
+    def on_color_window(self, msg):
+        with self.lock:
+            next_active = bool(msg.data)
+            if next_active != self.window_active:
+                self.window_active = next_active
+                self.stability.process([], time.monotonic())
+        if not next_active:
+            self.publisher.publish(String(data='{"targets":[]}'))
 
     def on_state(self, msg):
         with self.lock:
@@ -287,14 +301,17 @@ class ColorMonitor:
     def on_image(self, msg):
         now = time.monotonic()
         with self.lock:
-            if now - self.last_process < 1.0 / self.rate:
+            if not self.window_active or now - self.last_process < 1.0 / self.rate:
                 return
             self.last_process = now
         try:
             rgb = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
             blobs = self._find_blobs(rgb)
             obs = [pair[0] for color in COLORS for pair in blobs[color]]
-            stable = self.stability.process(obs, now)
+            with self.lock:
+                if not self.window_active:
+                    return
+                stable = self.stability.process(obs, now)
             if not stable or not self._active(time.monotonic()):
                 # Explicitly invalidate the fourth terminal's previous color
                 # results. Empty ROS messages never appear on the console.
@@ -317,6 +334,9 @@ class ColorMonitor:
                     rospy.logwarn_throttle(5.0, '[DEMO7 COLOR] geometry: %s', str(exc))
                 targets.append(data)
             if targets:
+                with self.lock:
+                    if not self.window_active:
+                        return
                 self.publisher.publish(String(data=json.dumps({
                     'stamp_ros_s': stamp_s(msg), 'targets': targets,
                 }, ensure_ascii=False)))

@@ -361,23 +361,24 @@ class EgoTrajectoryBridge:
                 )
                 return
 
-	    try:
-		  z_ref = float(rospy.get_param(
-		      "/contest2/ego_uav_interface/terminal_yaw_hold_z"
-		  ))
-	    except (KeyError, TypeError, ValueError):
-		  rospy.logerr("[FIXED] target height unavailable")
-		  return
+            # FIXED yaw holds the goal height supplied by the waypoint runner.
+            try:
+                z_ref = float(rospy.get_param(
+                    "/contest2/ego_uav_interface/terminal_yaw_hold_z"
+                ))
+            except (KeyError, TypeError, ValueError):
+                rospy.logerr("[FIXED] target height unavailable")
+                return
 
-	    if not math.isfinite(z_ref):
-		  rospy.logerr("[FIXED] target height invalid")
-		  return
+            if not math.isfinite(z_ref):
+                rospy.logerr("[FIXED] target height invalid")
+                return
 
-	    self._fixed_hold_xyz = (
-		  self.current_position[0],
-		  self.current_position[1],
-		  z_ref
-	    )
+            self._fixed_hold_xyz = (
+                self.current_position[0],
+                self.current_position[1],
+                z_ref
+            )
 
             rospy.logwarn(
                 "[EGO BRIDGE] FIXED ODOM XYZ captured: "
