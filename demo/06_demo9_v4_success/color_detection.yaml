@@ -1,0 +1,29 @@
+# Demo7 color observer; this file affects vision only, never aircraft control.
+# Initial thresholds for indoor lighting; adjust from actual D435 RGB frames.
+# OpenCV HSV: H=0..179, S=0..255, V=0..255.
+decode_hz: 5.0
+stable_frames: 3
+freshness_s: 1.5
+max_centroid_jump_px: 45.0
+min_contour_area_px: 450.0
+max_contour_area_fraction: 0.65
+min_blob_width_px: 12
+min_blob_height_px: 12
+saturation_min: 85
+value_min: 65
+morph_open_size: 3
+morph_close_size: 5
+# If background shares a color or a color has 2+ blobs, that color is suppressed.
+hue_ranges:
+  red: [[0, 10], [170, 179]]
+  green: [[35, 85]]
+  blue: [[100, 130]]
+
+# Geometry follows demo7_qr_monitor.py: D435 color intrinsics,
+# aligned depth, vins_fusion/extrinsic, PX4 local odometry.
+min_depth_m: 0.20
+max_depth_m: 5.0
+max_sensor_skew_s: 0.12
+max_extrinsic_age_s: 2.0
+depth_interior_erode_px: 3
+min_valid_depth_pixels: 20

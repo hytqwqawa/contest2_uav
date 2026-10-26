@@ -52,8 +52,25 @@ if [ "$ready" -ne 1 ]; then
   echo '[ERROR] takeoff frame not established'; tail -n 45 "$LOGDIR/frame.log"; exit 1
 fi
 echo '[MISSION] Frame ready. Inspect numbered waypoints/obstacles before CH7 and ARM.'
-echo '[MISSION] QR observer enabled for the full mission (no flight commands).'
-PYTHONUNBUFFERED=1 python3 -B -u "$D/demo7_qr_monitor.py" & PIDS+=("$!")
+# QR + RGB color observers
+# contest2 ground test defaults to enabled (no ARM required).
+if [ "${VISION_GROUND_TEST:-1}" = "1" ]; then
+    rosparam set /contest2/demo7_qr_monitor/ground_test true
+    rosparam set /contest2/demo7_color_monitor/ground_test true
+else
+    rosparam set /contest2/demo7_qr_monitor/ground_test false
+    rosparam set /contest2/demo7_color_monitor/ground_test false
+fi
+
+echo '[VISION] QR + RGB color recognition started.'
+
+PYTHONUNBUFFERED=1 python3 -B -u \
+    "$D/demo7_qr_monitor.py" \
+    >"$LOGDIR/qr.log" 2>&1 & PIDS+=("$!")
+
+PYTHONUNBUFFERED=1 python3 -B -u \
+    "$D/demo7_color_monitor.py" \
+    >"$LOGDIR/color.log" 2>&1 & PIDS+=("$!")
 # Optional visualization; failure must not veto the flight setup itself.
 if [ "${SHOW_RVIZ:-1}" = '1' ] && command -v rviz >/dev/null 2>&1; then
   rviz -d "$D/yaw_tangent_demo.rviz" /tf:=/contest2/tf /tf_static:=/contest2/tf_static \
