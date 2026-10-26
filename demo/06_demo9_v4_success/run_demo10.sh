@@ -13,7 +13,7 @@ HOVER_AFTER_WAYPOINTS=(3)
 export DEMO10_HOVER_AFTER_WAYPOINTS="${HOVER_AFTER_WAYPOINTS[*]}"
 # Color recognition window: 0=disabled, N=after EGO waypoint PN is reached
 # (before terminal yaw), through the next EGO preview just before execution.
-COLOR_AFTER_WAYPOINT=1
+COLOR_AFTER_WAYPOINT=4
 export DEMO10_COLOR_AFTER_WAYPOINT="$COLOR_AFTER_WAYPOINT"
 python3 -B "$D/demo5_config.py" --check "$D/demo5_waypoints.yaml"
 # Validate before ARM: selected waypoint AND its following leg must be EGO.
