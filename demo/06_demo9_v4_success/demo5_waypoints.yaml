@@ -32,4 +32,3 @@ waypoints:
 
   - {forward: 2.000, left: 0.000, mode: POINT} 
   - {forward: 4.000, left: 0.000, mode: POINT} 
-  - {forward: 5.500, left: 0.000, mode: POINT} 
