@@ -9,11 +9,11 @@ export ROS_IP=192.168.8.102
 export ROS_NAMESPACE=/contest2
 # Optional 1-second hover after arrival + terminal yaw at selected P numbers.
 # Example: HOVER_AFTER_WAYPOINTS=(1 2 3 4); empty = disabled.
-HOVER_AFTER_WAYPOINTS=(2 3)
+HOVER_AFTER_WAYPOINTS=()
 export DEMO10_HOVER_AFTER_WAYPOINTS="${HOVER_AFTER_WAYPOINTS[*]}"
 # Color recognition window: 0=disabled, N=after EGO waypoint PN is reached
 # (before terminal yaw), through the next EGO preview just before execution.
-COLOR_AFTER_WAYPOINT=2
+COLOR_AFTER_WAYPOINT=0
 export DEMO10_COLOR_AFTER_WAYPOINT="$COLOR_AFTER_WAYPOINT"
 python3 -B "$D/demo5_config.py" --check "$D/demo5_waypoints.yaml"
 # Validate before ARM: selected waypoint AND its following leg must be EGO.

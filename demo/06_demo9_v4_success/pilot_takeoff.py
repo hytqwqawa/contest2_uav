@@ -168,7 +168,7 @@ class PilotTakeoff:
             rospy.sleep(0.25)
         if not accepted:
             raise RuntimeError('POINT takeoff never accepted')
-        target = self.ground_z + 0.8
+        target = self.ground_z + 0.5
         stable = None
         deadline = time.monotonic() + 16
         while not rospy.is_shutdown() and time.monotonic() < deadline:

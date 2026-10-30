@@ -3,8 +3,8 @@
   <node pkg="ego_uav_interface" type="point_traj_node.py"
         name="point_traj_node" output="log">
     <param name="output_topic" value="/contest2/ego_uav_interface/point_setpoint"/>
-    <param name="max_speed" value="0.15"/>
-    <param name="takeoff_height" value="0.80"/>
+    <param name="max_speed" value="0.20"/>
+    <param name="takeoff_height" value="0.50"/>
     <param name="takeoff_speed" value="0.50"/>
     <param name="takeoff_acc" value="0.80"/>
     <remap from="/contest2/move_base_simple/goal"

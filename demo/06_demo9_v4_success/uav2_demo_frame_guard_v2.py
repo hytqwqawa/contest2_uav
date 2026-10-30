@@ -78,7 +78,7 @@ class DemoFrameGuardV2:
 
         self.nominal_flight_height = rospy.get_param(
             "~flight_height",
-            0.80
+            0.50
         )
 
         # DEMO5: authoritative bounds + ordered waypoints share one YAML.

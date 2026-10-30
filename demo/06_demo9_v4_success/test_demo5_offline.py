@@ -31,7 +31,7 @@ def rejected(data):
 def run_tests():
     cfg = load_config(CONFIG)
     assert 1 <= len(cfg['waypoints']) <= 20
-    assert cfg['flight_height'] == 0.8
+    assert cfg['flight_height'] == 0.5
     assert cfg['fence'] == {
         'forward_min': -2.0, 'forward_max': 8.0,
         'left_min': -8.0, 'left_max': 8.0,
@@ -44,8 +44,8 @@ def run_tests():
     new_left = (-1., 0.)
     for wp in cfg['waypoints']:
         got = demo_to_world(origin, new_forward, new_left,
-                            wp['forward'], wp['left'], 0.8)
-        target = (-wp['left'], wp['forward'], 0.8)
+                            wp['forward'], wp['left'], 0.5)
+        target = (-wp['left'], wp['forward'], 0.5)
         assert all(abs(a-b) < 1e-9 for a, b in zip(got, target))
 
     fixture = copy.deepcopy(cfg)

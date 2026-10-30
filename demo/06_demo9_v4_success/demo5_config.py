@@ -41,10 +41,10 @@ def load_config(path):
         if abs(fence[k] - v) > 1e-9:
             raise ValueError('Demo5 fixed agreed fence %s must remain %.2f' % (k,v))
     h = finite_number(data['flight_height'], 'flight_height')
-    # The reused Demo4/3 POINT takeoff and landing launch is 0.80 m.
+    # The reused Demo4/3 POINT takeoff and landing launch is 0.50 m.
     # Do not allow YAML to change altitude without coordinated POINT changes.
-    if abs(h-0.80) > 1e-9:
-        raise ValueError('flight_height must remain 0.80 m for this version')
+    if abs(h-0.50) > 1e-9:
+        raise ValueError('flight_height must remain 0.50 m for this version')
     if not (fence['height_min'] + 0.20 < h < fence['height_max'] - 0.20):
         raise ValueError('flight_height too close to height fence')
     timeout = finite_number(data.get('segment_timeout_s',90.), 'segment_timeout_s')

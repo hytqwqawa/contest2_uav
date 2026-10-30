@@ -2781,7 +2781,7 @@ class TangentPreview:
                     self.execute_terminal_yaw(
                         gx, gy, gz, terminal_yaw_world_deg, deadline)
 
-                    # FIXED already commands zero V/A and goal height (+0.8m
+                    # FIXED already commands zero V/A and goal height (+0.5m
                     # in the Demo frame). Hold exactly 1s before POINT rejoin.
                     # Do not change yaw mode or publish another setpoint.
                     if (not land_after and
