@@ -2957,6 +2957,19 @@ class TangentPreview:
 
         self.active_wp_num = index
         self.wp_total = total
+
+        # LEG_SPEED_YAML_V1: set speed BEFORE publishing this EGO goal.
+        # The planner samples this parameter at the beginning of planGlobalTraj().
+        leg_speed = float(waypoint['speed'])
+        ego_param = (rospy.get_namespace().rstrip('/') +
+                     '/drone_0_ego_planner_node/manager/max_vel')
+        rospy.set_param(ego_param, leg_speed)
+        actual_speed = float(rospy.get_param(ego_param))
+        if abs(actual_speed - leg_speed) > 1e-6:
+            raise RuntimeError('EGO leg speed parameter write not verified')
+        rospy.logwarn('[LEG SPEED] P%d/%d EGO max_vel=%.2f m/s',
+                      index, total, leg_speed)
+
         h = self.demo5_cfg["flight_height"]
         f = waypoint["forward"]
         l = waypoint["left"]

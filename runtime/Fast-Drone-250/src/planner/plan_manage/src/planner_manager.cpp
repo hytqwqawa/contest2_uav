@@ -1,6 +1,7 @@
 // #include <fstream>
 #include <plan_manage/planner_manager.h>
 #include <thread>
+#include <cmath>
 #include "visualization_msgs/Marker.h" // zx-todo
 
 namespace ego_planner
@@ -457,6 +458,26 @@ namespace ego_planner
   bool EGOPlannerManager::planGlobalTraj(const Eigen::Vector3d &start_pos, const Eigen::Vector3d &start_vel, const Eigen::Vector3d &start_acc,
                                          const Eigen::Vector3d &end_pos, const Eigen::Vector3d &end_vel, const Eigen::Vector3d &end_acc)
   {
+
+    // LEG_SPEED_V1: sample the requested speed once for each NEW global waypoint.
+    // In-flight collision replans keep the speed already selected for this leg.
+    ros::NodeHandle speed_nh("~");
+    double requested_vel = pp_.max_vel_;
+    speed_nh.param("manager/max_vel", requested_vel, requested_vel);
+    if (!std::isfinite(requested_vel) || requested_vel < 0.08 || requested_vel > 0.30)
+    {
+      ROS_ERROR("[EGO LEG SPEED] invalid requested max_vel=%.3f", requested_vel);
+      return false;
+    }
+    if (std::abs(requested_vel - pp_.max_vel_) > 1e-6)
+    {
+      // Keep optimizer and manager synchronized without restarting EGO.
+      speed_nh.setParam("optimization/max_vel", requested_vel);
+      speed_nh.setParam("bspline/limit_vel", requested_vel);
+      bspline_optimizer_->setParam(speed_nh);
+      pp_.max_vel_ = requested_vel;
+    }
+    ROS_WARN("[EGO LEG SPEED] new waypoint max_vel=%.3f m/s", pp_.max_vel_);
 
     // generate global reference trajectory
 

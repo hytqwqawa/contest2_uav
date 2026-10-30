@@ -59,8 +59,10 @@ def load_config(path):
     normalized = []
     previous = (0.0, 0.0)
     for index, item in enumerate(points, 1):
-        if not isinstance(item, dict) or not {'forward','left','mode'} <= set(item.keys()) or not set(item.keys()) <= {'forward','left','mode','yaw_deg'}:
-            raise ValueError('waypoint %d requires forward, left, mode; optional EGO yaw_deg' % index)
+        if (not isinstance(item, dict) or
+                not {'forward','left','mode'} <= set(item.keys()) or
+                not set(item.keys()) <= {'forward','left','mode','yaw_deg','speed'}):
+            raise ValueError('waypoint %d requires forward, left, mode; optional EGO yaw_deg/speed' % index)
         f = finite_number(item['forward'], 'P%d.forward' % index)
         l = finite_number(item['left'], 'P%d.left' % index)
         mode = item['mode']
@@ -73,6 +75,14 @@ def load_config(path):
             yaw_deg = finite_number(item['yaw_deg'], 'P%d.yaw_deg' % index)
             if not (-180.0 <= yaw_deg <= 180.0):
                 raise ValueError('P%d.yaw_deg must be within [-180, 180]' % index)
+        # speed applies to the EGO leg arriving at this waypoint.
+        # POINT legs still use the unchanged POINT controller.
+        if mode == 'POINT' and 'speed' in item:
+            raise ValueError('P%d.speed is only supported on EGO waypoints' % index)
+        speed = (finite_number(item.get('speed', 0.20), 'P%d.speed' % index)
+                 if mode == 'EGO' else None)
+        if speed is not None and not (0.08 <= speed <= 0.30):
+            raise ValueError('P%d.speed must be in [0.08,0.30] m/s' % index)
         if not (fence['forward_min']+margin <= f <= fence['forward_max']-margin):
             raise ValueError('waypoint %d forward outside fence margin' % index)
         if not (fence['left_min']+margin <= l <= fence['left_max']-margin):
@@ -91,6 +101,8 @@ def load_config(path):
         normalized_item = {'forward':f,'left':l,'mode':mode}
         if yaw_deg is not None:
             normalized_item['yaw_deg'] = yaw_deg
+        if speed is not None:
+            normalized_item['speed'] = speed
         normalized.append(normalized_item)
         previous = (f,l)
     return {'fence':fence,'flight_height':h,
@@ -125,8 +137,9 @@ def main():
     for i, w in enumerate(cfg['waypoints'],1):
         suffix = 'FINAL/LAND' if i == len(cfg['waypoints']) else 'CONTINUE'
         yaw_text = (' yaw_demo=%+.1f deg' % w['yaw_deg']) if 'yaw_deg' in w else ' yaw=original'
-        print('P%d  F=%+.2f L=%+.2f H=%.2f  %s/%s%s' %
-              (i,w['forward'],w['left'],cfg['flight_height'],w['mode'],suffix,yaw_text))
+        speed_text = (' speed=%.2f m/s' % w['speed']) if 'speed' in w else ''
+        print('P%d  F=%+.2f L=%+.2f H=%.2f  %s/%s%s%s' %
+              (i,w['forward'],w['left'],cfg['flight_height'],w['mode'],suffix,yaw_text,speed_text))
 
 if __name__ == '__main__':
     main()

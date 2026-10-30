@@ -14,45 +14,53 @@ demo5_plan_snapshot:
     left: 1.0
     mode: EGO
     yaw_deg: 0.0
+    speed: 0.2
   - forward: 3.0
     left: 1.0
     mode: EGO
     yaw_deg: 0.0
+    speed: 0.2
   - forward: 4.0
     left: 0.0
     mode: EGO
     yaw_deg: -160.0
+    speed: 0.1
   - forward: 4.5
     left: -0.5
     mode: EGO
     yaw_deg: -180.0
+    speed: 0.1
   - forward: 4.0
     left: -1.0
     mode: EGO
     yaw_deg: 135.0
+    speed: 0.1
   - forward: 3.0
     left: -1.0
     mode: EGO
     yaw_deg: -180.0
+    speed: 0.2
   - forward: 0.0
     left: -1.0
     mode: EGO
     yaw_deg: -180.0
+    speed: 0.2
   - forward: 0.0
     left: 0.0
     mode: EGO
     yaw_deg: -180.0
+    speed: 0.2
 demo5_waypoints: *id001
 origin_world:
-  x: -0.04384578997269273
-  y: 0.0030350543034728616
-  z: -0.019988843984901906
+  x: -0.04344282224774361
+  y: 0.002867673417495098
+  z: -0.02854478433728218
 forward_world:
-  x: 0.9999436959638359
-  y: 0.010611545701904555
+  x: 0.9999564210340527
+  y: -0.009335739540516683
 left_world:
-  x: -0.010611545701904555
-  y: 0.9999436959638359
+  x: 0.009335739540516683
+  y: 0.9999564210340527
 demo_fence:
   forward_min: -2.0
   forward_max: 8.0
@@ -65,13 +73,13 @@ goal_demo:
   left: 0.0
   height: 0.8
 goal_world:
-  x: -0.04384578997269273
-  y: 0.0030350543034728616
-  z: 0.7800111560150982
+  x: -0.04344282224774361
+  y: 0.002867673417495098
+  z: 0.7714552156627179
 ego_compatibility_aabb:
-  x_min: -2.1786255475156007
-  x_max: 8.090596143353231
-  y_min: -8.067737604811024
-  y_max: 8.137476987629398
-  z_min: 0.0800111560150981
-  z_max: 1.4800111560150981
+  x_min: -2.1680415806399824
+  x_max: 8.080894462348812
+  y_min: -8.12146961117906
+  y_max: 8.071190520770951
+  z_min: 0.07145521566271783
+  z_max: 1.4714552156627179

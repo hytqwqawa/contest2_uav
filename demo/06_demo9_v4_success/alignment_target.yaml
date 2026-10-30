@@ -1,8 +1,8 @@
-traj_id: 9
-execution_initial_yaw_deg: 91.4741343618173
-planning_actual_yaw_deg: -179.32263937299302
-execution_yaw_error_deg: -89.2032262651897
+traj_id: 10
+execution_initial_yaw_deg: 94.10412179314723
+planning_actual_yaw_deg: -179.48296512637475
+execution_yaw_error_deg: -86.41291308047802
 yaw_time_forward: 1.0
-yaw_forward_distance: 0.1635759445993262
-alignment_lookahead: 2.1999999999999997
-created_wall_time: 1793112834.9945374
+yaw_forward_distance: 0.18551428152696162
+alignment_lookahead: 1.7999999999999998
+created_wall_time: 1793185895.9226925
