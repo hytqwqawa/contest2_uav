@@ -606,6 +606,13 @@ class PointTrajectoryNode:
         self.p0 = self.current_position()
         self.pf = list(pf)
 
+        # TAKEOFF_XY_ZERO_V1: keep commanded XY at MAVROS local (0, 0)
+        # for the entire ascent. PX4 closes the loop against odometry;
+        # only Z follows the quintic takeoff profile.
+        if kind == "TAKEOFF":
+            self.p0[0] = 0.0
+            self.p0[1] = 0.0
+
         self.traj_T = self.compute_duration(
             self.p0,
             self.pf,
@@ -898,6 +905,8 @@ class PointTrajectoryNode:
         if p[2] >= target_z - 0.05:
 
             self.capture_current_hold()
+            self.hold_p[0] = 0.0
+            self.hold_p[1] = 0.0
             self.takeoff_completed = True
             self.mode = "AIRBORNE_HOLD"
 
@@ -913,8 +922,8 @@ class PointTrajectoryNode:
             )
 
         pf = [
-            p[0],
-            p[1],
+            0.0,
+            0.0,
             target_z
         ]
 
