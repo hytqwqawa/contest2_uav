@@ -3,6 +3,15 @@
     <remap from="/tf" to="/contest2/tf"/>
     <remap from="/tf_static" to="/contest2/tf_static"/>
     <remap from="/diagnostics" to="/contest2/diagnostics"/>
+
+    <!-- 关闭 T265 重定位 -->
+    <param name="/contest2/t265/tracking_module/enable_relocalization"
+           type="bool" value="false"/>
+
+    <!-- 关闭 T265 位姿跳变 -->
+    <param name="/contest2/t265/tracking_module/enable_pose_jumping"
+           type="bool" value="false"/>
+
     <include file="$(find realsense2_camera)/launch/rs_t265.launch">
       <arg name="camera" value="t265"/>
       <arg name="tf_prefix" value="contest2_t265"/>
