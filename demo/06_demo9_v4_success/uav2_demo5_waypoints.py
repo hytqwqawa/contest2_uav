@@ -2160,7 +2160,7 @@ class TangentPreview:
                 raise RuntimeError("Final POINT trajectory aborted")
             arrived = (
                 self.point_status == "AIRBORNE_HOLD" and
-                dxy < 0.25 and dz < 0.15 and speed < 0.20
+                dxy < 0.25 and dz < 0.15 and speed < 0.50
             )
             if arrived:
                 if stable_since is None:
